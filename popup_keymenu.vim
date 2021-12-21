@@ -23,9 +23,8 @@
 let s:keys = 'abcdefimnopqrstuvwyz'
 
 let s:popup_filter = {}
-" TODO  rename to OnKeyPress
 " TODO  add OnOpen
-function! s:popup_filter.invoke(winid, key) dict
+function! s:popup_filter.Filter(winid, key) dict abort
 
   if a:key == 'l' && s:page_number < s:pages_max_len - 1
     echo s:page_number
@@ -46,7 +45,7 @@ function! s:popup_filter.invoke(winid, key) dict
   if len(a:key) == 1
     if ((s:modulo == 0 || s:page_number < s:pages_max_len - 1) && s:keys[0:9 - 1] =~# a:key) ||
           \ s:keys[0:s:modulo - 1] =~# a:key
-      call self.callback.invoke(a:winid, matchstrpos(s:keys, a:key)[1] + (s:page_number * 9))
+      call self.callback.OnSelect(a:winid, matchstrpos(s:keys, a:key)[1] + (s:page_number * 9))
     endif
     return 1
   endif
@@ -55,7 +54,7 @@ function! s:popup_filter.invoke(winid, key) dict
 endfunction
 
 function! s:CallPopupFilter(winid, key)
-  return s:popup_filter.invoke(a:winid, a:key)
+  return s:popup_filter.Filter(a:winid, a:key)
 endfunction
 
 function! s:GetScriptNumber()
@@ -100,19 +99,6 @@ function! PopupKeyMenu(what, callback, options)
     endif
   endfor
 
-  " for page in s:pages
-  "   echo page
-  " endfor
-
-  " let s:what = []
-  " let s:key_number = 0
-  " let s:keys = 'abcdefghijklmnopqrstuvwyz'
-  " for w in a:what
-  "   "call add(s:what, '['. string(s:key_number).']'." ". ' '. w)
-  "   call add(s:what, '['.s:keys[s:key_number].']'." ". ' '. w)
-  "   let s:key_number += 1
-  " endfor
-
   let s:options = #{ close: 'button', filter: '<SNR>'.s:GetScriptNumber().'_CallPopupFilter' }
   for [key, value] in items(a:options)
     let s:options[key] = value
@@ -123,4 +109,8 @@ function! PopupKeyMenu(what, callback, options)
 
   let s:page_number = 0
   let s:winid = popup_create(s:pages[s:page_number], s:options)
+
+  if exists('a:callback.OnOpen')
+    call a:callback.OnOpen(s:winid)
+  endif
 endfunction
