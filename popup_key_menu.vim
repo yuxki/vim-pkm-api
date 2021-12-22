@@ -61,6 +61,8 @@ function! PopupKeyMenu(what, options=#{})
   " Constructor------------------------------------------------------------------------------------
   let s:popup_key_menu.what = a:what
   let s:popup_key_menu.keys ='abcdefimnopqrstuvwyz'
+  let s:popup_key_menu.max_key_number = 9
+  let s:popup_key_menu.col_number = 1
   let s:scirpt_func_prefix = '<SNR>'.s:GetScriptNumber().'_'
   let s:popup_key_menu.options = #{
         \ close: 'button',
@@ -73,8 +75,8 @@ function! PopupKeyMenu(what, options=#{})
 
   " popup_key_menua.Init---------------------------------------------------------------------------
   function! s:popup_key_menu.Init() dict abort
-    let self.pages_max_len = len(self.what) / 9
-    let self.modulo = len(self.what) % 9
+    let self.pages_max_len = len(self.what) / self.max_key_number
+    let self.modulo = len(self.what) % self.max_key_number
     if self.modulo > 0
       let self.pages_max_len += 1
     endif
@@ -84,14 +86,14 @@ function! PopupKeyMenu(what, options=#{})
     let s:key_number = 0
 
     for w in self.what
-      if s:key_number == 0 || s:key_number == 9
+      if s:key_number == 0 || s:key_number == self.max_key_number
         let s:page = []
         let s:key_number = 0
       endif
       call add(s:page, '['.self.keys[s:key_number].']'." ". ' '. w)
       let s:key_number += 1
 
-      if s:key_number == 9 || (len(self.pages) == self.pages_max_len - 1 && s:key_number == self.modulo)
+      if s:key_number == self.max_key_number || (len(self.pages) == self.pages_max_len - 1 && s:key_number == self.modulo)
         let self.pages_len = len(self.pages)
         if self.pages_len == 0
           call add(s:page, '  ('.self.pages_len.') [l] ->  ')
@@ -123,9 +125,9 @@ function! PopupKeyMenu(what, options=#{})
     endif
 
     if len(a:key) == 1
-      if ((self.modulo == 0 || self.page_number < self.pages_max_len - 1) && self.keys[0:9 - 1] =~# a:key) ||
+      if ((self.modulo == 0 || self.page_number < self.pages_max_len - 1) && self.keys[0:self.max_key_number - 1] =~# a:key) ||
             \ self.keys[0:self.modulo - 1] =~# a:key
-        call self.OnSelect(a:winid, matchstrpos(self.keys, a:key)[1] + (self.page_number * 9))
+        call self.OnSelect(a:winid, matchstrpos(self.keys, a:key)[1] + (self.page_number * self.max_key_number))
       endif
       return 1
     endif
@@ -149,7 +151,7 @@ function! PopupKeyMenu(what, options=#{})
     call remove(g:popup_key_menus, self.popup_key_menu_id)
   endfunction
 
-  " Event Hadlers =================================================================================
+  " Event Handlers =================================================================================
 
   " popup_key_menu.OnSelect------------------------------------------------------------------------
   function! s:popup_key_menu.OnSelect(winid, index) dict abort
