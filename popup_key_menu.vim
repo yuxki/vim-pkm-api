@@ -1,5 +1,5 @@
 " Filename: popup_key_menu.vim
-" Version: 1.0.0
+" Version: 0.1.0
 " Author: yuxki
 " Last Change: 2021/12/22
 "
@@ -25,31 +25,53 @@
 " OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 " SOFTWARE.
 
+if !exists('g:popup_key_menus')
+  let g:popup_key_menus = {}
+endif
+
+if !exists('g:popup_key_menu_id')
+  let g:popup_key_menu_id = 1000
+endif
+
 function! s:CallPopupFilter(winid, key)
-  return s:popup_key_menus[0].Filter(a:winid, a:key)
+  for [key, value] in items(g:popup_key_menus)
+    if value['winid'] == a:winid
+      return g:popup_key_menus[key].Filter(a:winid, a:key)
+    endif
+  endfor
+  return 0
+endfunction
+
+function! s:CallPopupCallback(winid, key)
+  for [key, value] in items(g:popup_key_menus)
+    if value['winid'] == a:winid
+      return g:popup_key_menus[key].OnClose(a:winid, a:key)
+    endif
+  endfor
+  return 0
 endfunction
 
 function! s:GetScriptNumber()
   return matchstr(expand('<SID>'), '<SNR>\zs\d\+\ze_')
 endfunction
 
-let s:keys = 'abcdefimnopqrstuvwyz'
-
-let s:popup_key_menus = []
-
-
 function! PopupKeyMenu(what, options=#{})
   let s:popup_key_menu = {}
 
-  " Constructor-------------------------------------------------------------------------
+  " Constructor------------------------------------------------------------------------------------
   let s:popup_key_menu.what = a:what
   let s:popup_key_menu.keys ='abcdefimnopqrstuvwyz'
-  let s:popup_key_menu.options = #{ close: 'button', filter: '<SNR>'.s:GetScriptNumber().'_CallPopupFilter' }
+  let s:scirpt_func_prefix = '<SNR>'.s:GetScriptNumber().'_'
+  let s:popup_key_menu.options = #{
+        \ close: 'button',
+        \ filter: s:scirpt_func_prefix.'CallPopupFilter',
+        \ callback: s:scirpt_func_prefix.'CallPopupCallback',
+        \}
   for [key, value] in items(a:options)
     let s:popup_key_menu.options[key] = value
   endfor
 
-  " popup_key_menua.Init-------------------------------------------------------------------------
+  " popup_key_menua.Init---------------------------------------------------------------------------
   function! s:popup_key_menu.Init() dict abort
     let self.pages_max_len = len(self.what) / 9
     let self.modulo = len(self.what) % 9
@@ -83,7 +105,7 @@ function! PopupKeyMenu(what, options=#{})
     endfor
   endfunction
 
-  " popup_key_menu.Filter------------------------------------------------------------------------
+  " popup_key_menu.Filter--------------------------------------------------------------------------
   function! s:popup_key_menu.Filter(winid, key) dict abort
     if a:key == 'l' && self.page_number < self.pages_max_len - 1
       let self.page_number += 1
@@ -96,7 +118,7 @@ function! PopupKeyMenu(what, options=#{})
     endif
 
     if a:key == 'x'
-      call popup_close(a:winid)
+      call popup_close(a:winid, a:key)
       return 1
     endif
 
@@ -111,7 +133,7 @@ function! PopupKeyMenu(what, options=#{})
     return 1
   endfunction
 
-  " popup_key_menu.Open------------------------------------------------------------------------
+  " popup_key_menu.Open----------------------------------------------------------------------------
   function! s:popup_key_menu.Open() dict abort
     if len(self.what) <= 0
       return
@@ -122,18 +144,28 @@ function! PopupKeyMenu(what, options=#{})
     call self.OnOpen(self.winid)
   endfunction
 
-  " popup_key_menu.Close------------------------------------------------------------------------
-  function! s:popup_key_menu.Close() dict abort
+  " popup_key_menu.Remove--------------------------------------------------------------------------
+  function! s:popup_key_menu.Remove() dict abort
+    call remove(g:popup_key_menus, self.popup_key_menu_id)
   endfunction
+
+  " Event Hadlers =================================================================================
 
   " popup_key_menu.OnSelect------------------------------------------------------------------------
-  function! s:popup_key_menu.OnSelect() dict abort
+  function! s:popup_key_menu.OnSelect(winid, index) dict abort
   endfunction
 
-  " popup_key_menu.OnOpen------------------------------------------------------------------------
+  " popup_key_menu.OnOpen--------------------------------------------------------------------------
   function! s:popup_key_menu.OnOpen(winid) dict abort
   endfunction
 
-  call add(s:popup_key_menus, s:popup_key_menu)
+  " popup_key_menu.OnClose-------------------------------------------------------------------------
+  function! s:popup_key_menu.OnClose(winid, key) dict abort
+  endfunction
+
+  let g:popup_key_menus[string(g:popup_key_menu_id)] = s:popup_key_menu
+  let s:popup_key_menu.popup_key_menu_id = g:popup_key_menu_id
+  let g:popup_key_menu_id += 1
+
   return s:popup_key_menu
 endfunction
