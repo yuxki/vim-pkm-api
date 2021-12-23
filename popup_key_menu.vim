@@ -25,6 +25,7 @@
 " OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 " SOFTWARE.
 
+" TODO add prefix pkm_api_ to global variables
 if !exists('g:popup_key_menus')
   let g:popup_key_menus = {}
 endif
@@ -61,8 +62,8 @@ function! PopupKeyMenu(what, options=#{})
   " Constructor------------------------------------------------------------------------------------
   let s:popup_key_menu.what = a:what
   let s:popup_key_menu.keys ='abcdefimnopqrstuvwyz'
+  " TODO Not Allow col_number = 0, max_key_number = 0
   let s:popup_key_menu.max_key_number = 9
-  " TODO Not Allow col_number = 0
   let s:popup_key_menu.col_number = 1
   let s:popup_key_menu.delimiter = '   '
   let s:scirpt_func_prefix = '<SNR>'.s:GetScriptNumber().'_'
@@ -77,65 +78,60 @@ function! PopupKeyMenu(what, options=#{})
 
   " popup_key_menua.Init---------------------------------------------------------------------------
   function! s:popup_key_menu.Init() dict abort
-    let self.pages_max_len = len(self.what) / self.max_key_number
-    let self.modulo = len(self.what) % self.max_key_number
-    if self.modulo > 0
-      let self.pages_max_len += 1
-    endif
-
     let self.pages = []
     let s:page = []
     let s:key_number = 0
     let s:line = ''
-    let s:col_number = 0
 
     for w in self.what
-      if s:key_number == 0 || s:key_number == self.max_key_number
-        let s:page = []
-        let s:key_number = 0
-      endif
+      let s:line = s:line.'['.self.keys[(s:key_number % self.max_key_number)].'] '.w
+      let s:key_number += 1
 
-      let s:line = s:line.'['.self.keys[s:key_number].'] '.w
-      let s:col_number += 1
-      if s:col_number < self.col_number
+      if (s:key_number % self.col_number) > 0
         let s:line = s:line.self.delimiter
       endif
 
-      if s:col_number == self.col_number
+      if (s:key_number % self.col_number) == 0
         call add(s:page, s:line)
         let s:line = ''
-        let s:col_number = 0
       endif
-      let s:key_number += 1
 
-      if s:key_number == self.max_key_number || (len(self.pages) == self.pages_max_len - 1 && s:key_number == self.modulo)
-        if s:col_number > 0
+      if (s:key_number % self.max_key_number) == 0 || s:key_number == len(self.what)
+        if (s:key_number % self.col_number) > 0
           call add(s:page, s:line)
           let s:line = ''
-          let s:col_number =  0
         endif
 
-        if self.pages_max_len == 1
+        if len(self.what) <= self.max_key_number
           call add(self.pages, s:page)
-          continue
+          break
         endif
 
         let self.pages_len = len(self.pages)
         if self.pages_len == 0
+          " TODO change [l] and [h] to properties
           call add(s:page, '  ('.self.pages_len.') [l] ->  ')
-        elseif len(self.pages) < self.pages_max_len - 1
+        elseif (len(self.pages) + 1) * self.max_key_number < len(self.what)
           call add(s:page, '  <- [h] ('.self.pages_len.') [l] ->  ')
         else
           call add(s:page, '  <- [h] ('.self.pages_len.')  ')
         endif
         call add(self.pages, s:page)
+        let s:page = []
       endif
     endfor
+    return self
+  endfunction
+
+  " popup_key_menu.IsAtLastPage--------------------------------------------------------------------
+  function! s:popup_key_menu.IsAtLastPage() dict abort
+    return len(self.what) - ((self.page_number + 1) * self.max_key_number) <= 0
   endfunction
 
   " popup_key_menu.Filter--------------------------------------------------------------------------
   function! s:popup_key_menu.Filter(winid, key) dict abort
-    if a:key == 'l' && self.page_number < self.pages_max_len - 1
+    " TODO Test upper case pattern like I
+    if a:key == 'l' && !self.IsAtLastPage()
       let self.page_number += 1
       call popup_settext(a:winid, self.pages[self.page_number])
     endif
@@ -151,8 +147,8 @@ function! PopupKeyMenu(what, options=#{})
     endif
 
     if len(a:key) == 1
-      if ((self.modulo == 0 || self.page_number < self.pages_max_len - 1) && self.keys[0:self.max_key_number - 1] =~# a:key) ||
-            \ self.keys[0:self.modulo - 1] =~# a:key
+      if (len(self.what) - ((self.page_number + 1) * self.max_key_number) >= 0 && self.keys[0:self.max_key_number - 1] =~# a:key) ||
+       \ (len(self.what) % self.max_key_number > 0 && self.keys[0:(len(self.what) % self.max_key_number) - 1] =~# a:key)
         call self.OnSelect(a:winid, matchstrpos(self.keys, a:key)[1] + (self.page_number * self.max_key_number))
       endif
       return 1
@@ -181,6 +177,10 @@ function! PopupKeyMenu(what, options=#{})
 
   " popup_key_menu.OnSelect------------------------------------------------------------------------
   function! s:popup_key_menu.OnSelect(winid, index) dict abort
+  endfunction
+
+  " popup_key_menu.OnKeyPress----------------------------------------------------------------------
+  function! s:popup_key_menu.OnKeyPress(winid, key) dict abort
   endfunction
 
   " popup_key_menu.OnOpen--------------------------------------------------------------------------
