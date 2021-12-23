@@ -62,7 +62,9 @@ function! PopupKeyMenu(what, options=#{})
   let s:popup_key_menu.what = a:what
   let s:popup_key_menu.keys ='abcdefimnopqrstuvwyz'
   let s:popup_key_menu.max_key_number = 9
+  " TODO Not Allow col_number = 0
   let s:popup_key_menu.col_number = 1
+  let s:popup_key_menu.delimiter = '   '
   let s:scirpt_func_prefix = '<SNR>'.s:GetScriptNumber().'_'
   let s:popup_key_menu.options = #{
         \ close: 'button',
@@ -84,16 +86,40 @@ function! PopupKeyMenu(what, options=#{})
     let self.pages = []
     let s:page = []
     let s:key_number = 0
+    let s:line = ''
+    let s:col_number = 0
 
     for w in self.what
       if s:key_number == 0 || s:key_number == self.max_key_number
         let s:page = []
         let s:key_number = 0
       endif
-      call add(s:page, '['.self.keys[s:key_number].']'." ". ' '. w)
+
+      let s:line = s:line.'['.self.keys[s:key_number].'] '.w
+      let s:col_number += 1
+      if s:col_number < self.col_number
+        let s:line = s:line.self.delimiter
+      endif
+
+      if s:col_number == self.col_number
+        call add(s:page, s:line)
+        let s:line = ''
+        let s:col_number = 0
+      endif
       let s:key_number += 1
 
       if s:key_number == self.max_key_number || (len(self.pages) == self.pages_max_len - 1 && s:key_number == self.modulo)
+        if s:col_number > 0
+          call add(s:page, s:line)
+          let s:line = ''
+          let s:col_number =  0
+        endif
+
+        if self.pages_max_len == 1
+          call add(self.pages, s:page)
+          continue
+        endif
+
         let self.pages_len = len(self.pages)
         if self.pages_len == 0
           call add(s:page, '  ('.self.pages_len.') [l] ->  ')
