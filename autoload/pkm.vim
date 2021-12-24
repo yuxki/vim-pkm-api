@@ -55,28 +55,22 @@ function! s:GetScriptNumber()
   return matchstr(expand('<SID>'), '<SNR>\zs\d\+\ze_')
 endfunction
 
-function! pkm#PopupKeyMenu(what, options=#{})
+function! pkm#PopupKeyMenu()
   let s:popup_key_menu = {}
 
   " Constructor------------------------------------------------------------------------------------
-  let s:popup_key_menu.what = a:what
+  let s:popup_key_menu.what = []
   let s:popup_key_menu.keys ='abcdefimnopqrstuvwyz'
   let s:popup_key_menu.key_max = 9
   let s:popup_key_menu.col_max = 1
   let s:popup_key_menu.delimiter = '   '
-  let s:scirpt_func_prefix = '<SNR>'.s:GetScriptNumber().'_'
-  let s:popup_key_menu.options = #{
-        \ close: 'button',
-        \ filter: s:scirpt_func_prefix.'CallPopupFilter',
-        \ callback: s:scirpt_func_prefix.'CallPopupCallback',
-        \}
-  for [key, value] in items(a:options)
-    let s:popup_key_menu.options[key] = value
-  endfor
+  let s:popup_key_menu.options = #{}
 
-  " popup_key_menua.Init---------------------------------------------------------------------------
-  function! s:popup_key_menu.Init() dict
+  " popup_key_menua.Load---------------------------------------------------------------------------
+  function! s:popup_key_menu.Load(what) dict
+    let self.what = a:what
     let self.pages = []
+
     let s:page = []
     let s:key_number = 0
     let s:line = ''
@@ -141,7 +135,9 @@ function! pkm#PopupKeyMenu(what, options=#{})
 
   " popup_key_menu.Filter--------------------------------------------------------------------------
   function! s:popup_key_menu.Filter(winid, key) dict
-    call self.OnKeyPress(a:winid, a:key)
+    if self.OnKeyPress(a:winid, a:key)
+      return 1
+    endif
 
     let s:key_max = self.__KeepInKeyRange()
 
@@ -153,25 +149,36 @@ function! pkm#PopupKeyMenu(what, options=#{})
       let self.page_number -= 1
       call popup_settext(a:winid, self.pages[self.page_number])
       return 1
-    elseif a:key == 'x'
-      call popup_close(a:winid, a:key)
-      return 1
     endif
 
-    " TODO support CTRL + other key
+    " TODO support CTRL + key
     if len(a:key) == 1 " avoid interruption by other program
       if (self.__AfterPageKeysRest() >= 0 && self.keys[0:s:key_max - 1] =~# a:key) ||
        \ (len(self.what) % s:key_max > 0 && self.keys[0:(len(self.what) % s:key_max) - 1] =~# a:key)
-        call self.OnSelect(a:winid, matchstrpos(self.keys, a:key.'\C')[1] + (self.page_number * s:key_max))
+        call self.OnKeySelect(a:winid, matchstrpos(self.keys, a:key.'\C')[1] + (self.page_number * s:key_max))
       endif
       return 1
     endif
 
-    return 1
+    return 0
+  endfunction
+
+  " popup_key_menu.__InitPopupOptions--------------------------------------------------------------
+  function! s:popup_key_menu.__InitPopupOptions(options) dict
+    let s:scirpt_func_prefix = '<SNR>'.s:GetScriptNumber().'_'
+    let self.options = #{
+          \ filter: s:scirpt_func_prefix.'CallPopupFilter',
+          \ callback: s:scirpt_func_prefix.'CallPopupCallback',
+          \}
+    for [key, value] in items(a:options)
+      let self.options[key] = value
+    endfor
   endfunction
 
   " popup_key_menu.Open----------------------------------------------------------------------------
-  function! s:popup_key_menu.Open() dict
+  function! s:popup_key_menu.Open(options) dict
+    call self.__InitPopupOptions(a:options)
+
     if len(self.what) <= 0
       return
     endif
@@ -188,8 +195,8 @@ function! pkm#PopupKeyMenu(what, options=#{})
 
   " Event Handlers ================================================================================
 
-  " popup_key_menu.OnSelect------------------------------------------------------------------------
-  function! s:popup_key_menu.OnSelect(winid, index) dict
+  " popup_key_menu.OnKeySelect---------------------------------------------------------------------
+  function! s:popup_key_menu.OnKeySelect(winid, index) dict
   endfunction
 
   " popup_key_menu.OnKeyPress----------------------------------------------------------------------
