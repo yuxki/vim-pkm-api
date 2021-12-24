@@ -1,7 +1,7 @@
 " Filename: popup_key_menu.vim
 " Version: 0.1.0
 " Author: yuxki
-" Last Change: 2021/12/22
+" Last Change: 2021/12/24
 "
 " MIT License
 "
@@ -25,28 +25,27 @@
 " OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 " SOFTWARE.
 
-" TODO add prefix pkm_api_ to global variables
-if !exists('g:popup_key_menus')
-  let g:popup_key_menus = {}
+if !exists('g:pkm_api_popup_key_menus')
+  let g:pkm_api_popup_key_menus = {}
 endif
 
-if !exists('g:popup_key_menu_id')
-  let g:popup_key_menu_id = 1000
+if !exists('g:pkm_api_popup_key_menu_id')
+  let g:pkm_api_popup_key_menu_id = 1000
 endif
 
 function! s:CallPopupFilter(winid, key)
-  for [key, value] in items(g:popup_key_menus)
+  for [key, value] in items(g:pkm_api_popup_key_menus)
     if value['winid'] == a:winid
-      return g:popup_key_menus[key].Filter(a:winid, a:key)
+      return g:pkm_api_popup_key_menus[key].Filter(a:winid, a:key)
     endif
   endfor
   return 0
 endfunction
 
 function! s:CallPopupCallback(winid, key)
-  for [key, value] in items(g:popup_key_menus)
+  for [key, value] in items(g:pkm_api_popup_key_menus)
     if value['winid'] == a:winid
-      return g:popup_key_menus[key].OnClose(a:winid, a:key)
+      return g:pkm_api_popup_key_menus[key].OnClose(a:winid, a:key)
     endif
   endfor
   return 0
@@ -124,12 +123,12 @@ function! PopupKeyMenu(what, options=#{})
     return self
   endfunction
 
-  " popup_key_menu.__KeepInKeyRange-------------------------------------------------------------
+  " popup_key_menu.__KeepInKeyRange----------------------------------------------------------------
   function! s:popup_key_menu.__KeepInKeyRange() dict
     return self.key_max > 0 ? self.key_max <= len(self.keys) ? self.key_max : len(self.keys) : 1
   endfunction
 
-  " popup_key_menu.__KeepInColRange-------------------------------------------------------------
+  " popup_key_menu.__KeepInColRange----------------------------------------------------------------
   function! s:popup_key_menu.__KeepInColRange() dict
     return self.col_max > 0 ? self.col_max : 1
   endfunction
@@ -160,7 +159,7 @@ function! PopupKeyMenu(what, options=#{})
     endif
 
     " TODO support CTRL + other key
-    if len(a:key) == 1
+    if len(a:key) == 1 " avoid interruption by other program
       if (self.__AfterPageKeysRest() >= 0 && self.keys[0:s:key_max - 1] =~# a:key) ||
        \ (len(self.what) % s:key_max > 0 && self.keys[0:(len(self.what) % s:key_max) - 1] =~# a:key)
         call self.OnSelect(a:winid, matchstrpos(self.keys, a:key.'\C')[1] + (self.page_number * s:key_max))
@@ -184,10 +183,10 @@ function! PopupKeyMenu(what, options=#{})
 
   " popup_key_menu.Remove--------------------------------------------------------------------------
   function! s:popup_key_menu.Remove() dict
-    call remove(g:popup_key_menus, self.popup_key_menu_id)
+    call remove(g:pkm_api_popup_key_menus, self.pkm_api_popup_key_menu_id)
   endfunction
 
-  " Event Handlers =================================================================================
+  " Event Handlers ================================================================================
 
   " popup_key_menu.OnSelect------------------------------------------------------------------------
   function! s:popup_key_menu.OnSelect(winid, index) dict
@@ -205,9 +204,9 @@ function! PopupKeyMenu(what, options=#{})
   function! s:popup_key_menu.OnClose(winid, key) dict
   endfunction
 
-  let g:popup_key_menus[string(g:popup_key_menu_id)] = s:popup_key_menu
-  let s:popup_key_menu.popup_key_menu_id = g:popup_key_menu_id
-  let g:popup_key_menu_id += 1
+  let g:pkm_api_popup_key_menus[string(g:pkm_api_popup_key_menu_id)] = s:popup_key_menu
+  let s:popup_key_menu.pkm_api_popup_key_menu_id = g:pkm_api_popup_key_menu_id
+  let g:pkm_api_popup_key_menu_id += 1
 
   return s:popup_key_menu
 endfunction
