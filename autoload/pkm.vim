@@ -1,4 +1,4 @@
-" Filename: popup_key_menu.vim
+" Filename: pkm.vim
 " Version: 0.1.0
 " Author: yuxki
 " Last Change: 2021/12/24
@@ -55,7 +55,7 @@ function! s:GetScriptNumber()
   return matchstr(expand('<SID>'), '<SNR>\zs\d\+\ze_')
 endfunction
 
-function! PopupKeyMenu(what, options=#{})
+function! pkm#PopupKeyMenu(what, options=#{})
   let s:popup_key_menu = {}
 
   " Constructor------------------------------------------------------------------------------------
@@ -205,7 +205,7 @@ function! PopupKeyMenu(what, options=#{})
   endfunction
 
   let g:pkm_api_popup_key_menus[string(g:pkm_api_popup_key_menu_id)] = s:popup_key_menu
-  let s:popup_key_menu.pkm_api_popup_key_menu_id = g:pkm_api_popup_key_menu_id
+  let s:popup_key_menu.pkm_id = g:pkm_api_popup_key_menu_id
   let g:pkm_api_popup_key_menu_id += 1
 
   return s:popup_key_menu
