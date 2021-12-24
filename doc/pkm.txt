@@ -1,0 +1,98 @@
+pkm*.txt*	For Vim version 8.2+ 	Last change: 2021/12/24
+
+Customable Key Oriented Popup Menu.
+
+Version: 0.1.0
+Author: yuxki
+License: MIT License
+Repository: https://github.com/yuxki/vim-pkm-api
+
+==============================================================================
+CONTENTS 						*pkm-contents*
+
+Introduction		|pkm-introduction|
+Usage			|pkm-usage|
+Install			|pkm-install|
+Interface		|pkm-interface|
+  Functions		  |pkm-functions|
+  Handlers		  |pkm-handlers|
+  Variables		  |pkm-variables|
+Examples		  |pkm-examples|
+
+==============================================================================
+INTRODUCTION						*pkm-introduction*
+
+pkm (Popup Key Menu) is a customable key oriented popup menu.
+
+==============================================================================
+USAGE							*pkm-usage*
+
+==============================================================================
+INTERFACE						*pkm-interface*
+
+------------------------------------------------------------------------------
+FUNCTIONS						*pkm-functions*
+
+							*pkm#PopupKeyMenu()*
+pkm#PopupKeyMenu({what}, {options})
+
+		Description about the function.
+
+
+							*pkm#PopupKeyMenu.Init()*
+pkm#PopupKeyMenu.Init()
+
+		Description about the function.
+
+
+							*pkm#PopupKeyMenu.Open()*
+pkm#PopupKeyMenu.Open()
+
+		Description about the function.
+
+
+							*pkm#PopupKeyMenu.Remove()*
+pkm#PopupKeyMenu.Remove()
+
+		Description about the function.
+
+------------------------------------------------------------------------------
+HANDLERS						*pkm-handlers*
+
+							*pkm#PopupKeyMenu.OnOpen()*
+pkm#PopupKeyMenu.OnOpen()
+
+		Description about the function.
+
+							*pkm#PopupKeyMenu.OnKeyPress()*
+pkm#PopupKeyMenu.OnKeyPress()
+
+		Description about the function.
+
+							*pkm#PopupKeyMenu.OnSelect()*
+pkm#PopupKeyMenu.OnSelect()
+
+		Description about the function.
+
+							*pkm#PopupKeyMenu.OnClose()*
+pkm#PopupKeyMenu.OnClose()
+
+		Description about the function.
+------------------------------------------------------------------------------
+VARIABLES						*pkm-variables*
+
+						*g:pkm_api_popup_key_menus*
+g:pkm_api_popup_key_menus
+
+		Description about the variable.
+
+
+						*g:pkm_api_popup_key_menu_id*
+g:pkm_api_popup_key_menu_id
+
+		Description about the variable.
+==============================================================================
+EXAMPLES						*pkm-examples*
+
+==============================================================================
+ vim:tw=78:ts=8:noet:ft=help:norl:
