@@ -25,6 +25,9 @@
 " OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 " SOFTWARE.
 
+let s:save_cpo = &cpo
+set cpo&vim
+
 if !exists('g:pkm_api_popup_key_menus')
   let g:pkm_api_popup_key_menus = {}
 endif
@@ -64,7 +67,28 @@ function! pkm#PopupKeyMenu()
   let s:popup_key_menu.key_max = 9
   let s:popup_key_menu.col_max = 1
   let s:popup_key_menu.delimiter = '   '
+  let s:popup_key_menu.ignorecase = 0
+  let s:popup_key_menu.page_guide = 1
+  let s:popup_key_menu.next_page_key = 'l'
+  let s:popup_key_menu.prev_page_key = 'h'
+  let s:popup_key_menu.key_guide = '[%k] '
+  let s:popup_key_menu.page_guides = [
+        \ '  (%p) [%n] >>  ',
+        \ '  << [%v] (%p) [%n] >>  ',
+        \ '  << [%v] (%p)  ',
+        \ ]
   let s:popup_key_menu.options = #{}
+
+  " popup_key_menu.__PageGuides--------------------------------------------------------------------
+  function! s:popup_key_menu.__InitPageGuides() dict
+    let s:guides = []
+    for guide in self.page_guides
+      call add(s:guides, substitute(
+            \ substitute(guide, '%n', self.next_page_key, 'g'),
+            \ '%v', self.prev_page_key, 'g'))
+    endfor
+    return s:guides
+  endfunction
 
   " popup_key_menua.Load---------------------------------------------------------------------------
   function! s:popup_key_menu.Load(what) dict
@@ -76,9 +100,10 @@ function! pkm#PopupKeyMenu()
     let s:line = ''
     let s:key_max = self.__KeepInKeyRange()
     let s:col_max = self.__KeepInColRange()
+    let s:page_guides = self.__InitPageGuides()
 
     for w in self.what
-      let s:line = s:line.'['.self.keys[(s:key_number % s:key_max)].'] '.w
+      let s:line = s:line.substitute(self.key_guide ,'%k', self.keys[(s:key_number % s:key_max)], 'g').w
       let s:key_number += 1
 
       if (s:key_number % s:col_max) > 0
@@ -102,13 +127,15 @@ function! pkm#PopupKeyMenu()
         endif
 
         let self.pages_len = len(self.pages)
-        if self.pages_len == 0
-          " TODO change [l] and [h] to properties
-          call add(s:page, '  ('.self.pages_len.') [l] ->  ')
-        elseif (len(self.pages) + 1) * s:key_max < len(self.what)
-          call add(s:page, '  <- [h] ('.self.pages_len.') [l] ->  ')
-        else
-          call add(s:page, '  <- [h] ('.self.pages_len.')  ')
+        if self.page_guide
+          if self.pages_len == 0
+            let s:guide_index = 0
+          elseif (len(self.pages) + 1) * s:key_max < len(self.what)
+            let s:guide_index = 1
+          else
+            let s:guide_index = 2
+          endif
+          call add(s:page, substitute(s:page_guides[s:guide_index], '%p', self.pages_len, 'g'))
         endif
         call add(self.pages, s:page)
         let s:page = []
@@ -133,6 +160,11 @@ function! pkm#PopupKeyMenu()
     return len(self.what) - ((self.page_number + 1) * s:key_max)
   endfunction
 
+  " popup_key_menu.__SearchKeyIndex----------------------------------------------------------------
+  function! s:popup_key_menu.__SearchKeyIndex(key) dict
+    return matchstrpos(self.keys, self.ignorecase ? a:key : a:key.'\C')[1]
+  endfunction
+
   " popup_key_menu.Filter--------------------------------------------------------------------------
   function! s:popup_key_menu.Filter(winid, key) dict
     if self.OnKeyPress(a:winid, a:key)
@@ -141,11 +173,11 @@ function! pkm#PopupKeyMenu()
 
     let s:key_max = self.__KeepInKeyRange()
 
-    if a:key == 'l' && self.__AfterPageKeysRest() > 0
+    if a:key == self.next_page_key && self.__AfterPageKeysRest() > 0
       let self.page_number += 1
       call popup_settext(a:winid, self.pages[self.page_number])
       return 1
-    elseif a:key == 'h' && self.page_number > 0
+    elseif a:key == self.prev_page_key && self.page_number > 0
       let self.page_number -= 1
       call popup_settext(a:winid, self.pages[self.page_number])
       return 1
@@ -155,7 +187,7 @@ function! pkm#PopupKeyMenu()
     if len(a:key) == 1 " avoid interruption by other program
       if (self.__AfterPageKeysRest() >= 0 && self.keys[0:s:key_max - 1] =~# a:key) ||
        \ (len(self.what) % s:key_max > 0 && self.keys[0:(len(self.what) % s:key_max) - 1] =~# a:key)
-        call self.OnKeySelect(a:winid, matchstrpos(self.keys, a:key.'\C')[1] + (self.page_number * s:key_max))
+        call self.OnKeySelect(a:winid, self.__SearchKeyIndex(a:key) + (self.page_number * s:key_max))
       endif
       return 1
     endif
@@ -193,7 +225,7 @@ function! pkm#PopupKeyMenu()
     call remove(g:pkm_api_popup_key_menus, self.pkm_api_popup_key_menu_id)
   endfunction
 
-  " Event Handlers ================================================================================
+  " Handlers ======================================================================================
 
   " popup_key_menu.OnKeySelect---------------------------------------------------------------------
   function! s:popup_key_menu.OnKeySelect(winid, index) dict
@@ -217,3 +249,6 @@ function! pkm#PopupKeyMenu()
 
   return s:popup_key_menu
 endfunction
+
+let &cpo = s:save_cpo
+unlet s:save_cpo
