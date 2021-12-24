@@ -62,7 +62,6 @@ function! PopupKeyMenu(what, options=#{})
   " Constructor------------------------------------------------------------------------------------
   let s:popup_key_menu.what = a:what
   let s:popup_key_menu.keys ='abcdefimnopqrstuvwyz'
-  " TODO Not Allow col_max = 0, key_max = 0
   let s:popup_key_menu.key_max = 9
   let s:popup_key_menu.col_max = 1
   let s:popup_key_menu.delimiter = '   '
@@ -143,9 +142,10 @@ function! PopupKeyMenu(what, options=#{})
 
   " popup_key_menu.Filter--------------------------------------------------------------------------
   function! s:popup_key_menu.Filter(winid, key) dict
+    call self.OnKeyPress(a:winid, a:key)
+
     let s:key_max = self.__KeepInKeyRange()
 
-    " TODO Test upper case pattern like I
     if a:key == 'l' && self.__AfterPageKeysRest() > 0
       let self.page_number += 1
       call popup_settext(a:winid, self.pages[self.page_number])
@@ -159,10 +159,11 @@ function! PopupKeyMenu(what, options=#{})
       return 1
     endif
 
+    " TODO support CTRL + other key
     if len(a:key) == 1
       if (self.__AfterPageKeysRest() >= 0 && self.keys[0:s:key_max - 1] =~# a:key) ||
        \ (len(self.what) % s:key_max > 0 && self.keys[0:(len(self.what) % s:key_max) - 1] =~# a:key)
-        call self.OnSelect(a:winid, matchstrpos(self.keys, a:key)[1] + (self.page_number * s:key_max))
+        call self.OnSelect(a:winid, matchstrpos(self.keys, a:key.'\C')[1] + (self.page_number * s:key_max))
       endif
       return 1
     endif
