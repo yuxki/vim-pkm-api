@@ -16,68 +16,209 @@ Install			|pkm-install|
 Interface		|pkm-interface|
   Functions		  |pkm-functions|
   Handlers		  |pkm-handlers|
+  Properties		  |pkm-properties|
   Variables		  |pkm-variables|
-Examples		  |pkm-examples|
+Samples			  |pkm-samples|
 
 ==============================================================================
 INTRODUCTION						*pkm-introduction*
 
-pkm (Popup Key Menu) is a customable key oriented popup menu.
+The pkm (Popup Key Menu) is customable and key oriented popup menu.
+See |popup.txt| for details on popup.
 
 ==============================================================================
 USAGE							*pkm-usage*
+>
+ +-------------------------X
+ | [r] red   [b] blue      |
+ | [y] yellow   [o] orange |
+ +-------------------------+
+<
+This sample program open the above popup menu that prints color name
+according to the the key. The key 'x' closes the popup. Set 0 to the
+|pkm.xclose| to disable this util.
 
+Note: See |pkm-samples| to get more "plugin like"" samples.
+>
+ let s:colors = ['red', 'blue', 'yellow', 'orange']
+ let s:popup_options = #{
+  \ padding: [0, 1, 0, 1],
+  \ border: [1, 1, 1, 1],
+  \ }
+ let s:pkm_id = ''
+
+ function! SamplePkm()
+   if !has_key(g:pkm_api_popup_key_menus, s:pkm_id)
+     let s:pkm = pkm#PopupKeyMenu() " #1
+     let s:pkm_id = s:pkm.pkm_id
+
+     let s:pkm.col_max = 2 " #2
+     let s:pkm.keys ='rbyo'
+
+     function! s:pkm.OnKeySelect(winid, index) " #3
+       echo s:colors[a:index]
+     endfunction
+
+     call s:pkm.Load(s:colors) " #4
+   endif
+
+   call s:pkm.Open(s:popup_options) " #5
+ endfunction
+<
+#1 The constructed pkm |dict| is managed by |pkm.pkm_id| key in
+|g:pkm_api_popup_key_menus|. Check if the pkm_id is exists in the global
+variable and you can reuse the pkm dict.
+
+#2 The |pkm-properties| changes the pkm popup behavior. In this sample,
+'[key] item' pairs will be displayed with 2 columns, and '[key]' will be
+the keys 'r', 'b', 'y', 'o'.
+
+#3 The |pkm-handlers| can be used by overriding. The |pkm.OnKeySelect()| will be
+called when the key is selected. In this case, the key 'r' returns 0, and the
+key 'o' returns 3.
+
+#4 The colors and the properties are loaded by the |pkm.Load()|. Now pkm
+popup can be opend.
+
+#5 The |pkm.Open()| calls |popup_create()| with the options argument. See
+|popup_create-arguments| for details on the options.
+>
+ let s:colors = ['red', 'blue', 'yellow', 'orange',
+      \ 'dark-red', 'dark-blue', 'dark-yellow', 'dark-orange',
+      \ 'light-red', 'light-blue', 'light-yellow', 'light-orange']
+<
+If you load a List has items more than |pkm.key| length, items separated by
+pages. On the default behavior, the key 'l' transits to next page, and the
+key 'h' does the opposite of that.
+>
+ +-------------------------X
+ | [r] red   [b] blue      |
+ | [y] yellow   [o] orange |
+ |   (0) [l] >>            |
+ +-------------------------+
+
+ +-----------------------------------X
+ | [r] dark-red   [b] dark-blue      |
+ | [y] dark-yellow   [o] dark-orange |
+ |   << [h] (1) [l] >>               |
+ +-----------------------------------+
+
+ +-------------------------------------X
+ | [r] light-red   [b] light-blue      |
+ | [y] light-yellow   [o] light-orange |
+ |   << [h] (2)                        |
+ +-------------------------------------+
+<
 ==============================================================================
 INTERFACE						*pkm-interface*
 
 ------------------------------------------------------------------------------
 FUNCTIONS						*pkm-functions*
 
-							*pkm#PopupKeyMenu()*
-pkm#PopupKeyMenu({what}, {options})
+
+pkm#PopupKeyMenu()					*pkm#PopupKeyMenu()*
 
 		Description about the function.
 
 
-							*pkm#PopupKeyMenu.Init()*
-pkm#PopupKeyMenu.Init()
+
+pkm.Load({what})					*pkm.Load()*
 
 		Description about the function.
 
 
-							*pkm#PopupKeyMenu.Open()*
-pkm#PopupKeyMenu.Open()
+
+pkm.Open({options})					*pkm.Open()*
 
 		Description about the function.
 
 
-							*pkm#PopupKeyMenu.Remove()*
-pkm#PopupKeyMenu.Remove()
+
+pkm.Filter({winid}, {key})				*pkm.Filter()*
+
+		Description about the function.
+
+
+pkm.Remove()						*pkm.Remove()*
 
 		Description about the function.
 
 ------------------------------------------------------------------------------
 HANDLERS						*pkm-handlers*
 
-							*pkm#PopupKeyMenu.OnOpen()*
-pkm#PopupKeyMenu.OnOpen()
+
+pkm.OnOpen()						*pkm.OnOpen()*
 
 		Description about the function.
 
-							*pkm#PopupKeyMenu.OnKeyPress()*
-pkm#PopupKeyMenu.OnKeyPress()
+
+pkm.OnKeyPress()					*pkm.OnKeyPress()*
 
 		Description about the function.
 
-							*pkm#PopupKeyMenu.OnSelect()*
-pkm#PopupKeyMenu.OnSelect()
+
+pkm.OnKeySelect()					*pkm.OnKeySelect()*
 
 		Description about the function.
 
-							*pkm#PopupKeyMenu.OnClose()*
-pkm#PopupKeyMenu.OnClose()
+
+pkm.OnClose()						*pkm.OnClose()*
 
 		Description about the function.
+------------------------------------------------------------------------------
+PROPERTIES						*pkm-properties*
+
+pkm.pkm_id						*pkm.pkm_id*
+
+		Write
+
+pkm.keys						*pkm.keys*
+
+		Default: 'abcdefimnopqrstuvwyz'
+
+pkm.key_max						*pkm.key_max*
+
+		Default: 9
+
+pkm.col_max						*pkm.col_max*
+
+		Default: 1
+
+pkm.xclose						*pkm.xclose*
+
+		Default: 1
+
+pkm.delimiter						*pkm.delimiter*
+
+		Default: '   '
+
+pkm.ignorecase						*pkm.ignorecase*
+
+		Default: 0
+
+pkm.page_guide						*pkm.page_guide*
+
+		Default: 1
+
+pkm.next_page_key					*pkm.next_page_key*
+
+		Default: 'l'
+
+pkm.prev_page_key					*pkm.prev_page_key*
+
+		Default: 'h'
+
+pkm.key_guide						*pkm.key_guide*
+
+		Default: '[%k] '
+
+pkm.page_guides						*pkm.page_guides*
+
+		Default: [
+			\ '  (%p) [%n] >>  ',
+			\ '  << [%v] (%p) [%n] >>  ',
+			\ '  << [%v] (%p)  ',
+			\ ]
 ------------------------------------------------------------------------------
 VARIABLES						*pkm-variables*
 
@@ -92,7 +233,7 @@ g:pkm_api_popup_key_menu_id
 
 		Description about the variable.
 ==============================================================================
-EXAMPLES						*pkm-examples*
+SAMPLES							*pkm-samples*
 
 ==============================================================================
  vim:tw=78:ts=8:noet:ft=help:norl:
