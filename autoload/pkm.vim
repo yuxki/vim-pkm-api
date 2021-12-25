@@ -243,6 +243,7 @@ function! pkm#PopupKeyMenu()
     let self.page_number = 0
     let self.winid = popup_create(self.pages[self.page_number], self.options)
     call self.OnOpen(self.winid)
+    return self.winid
   endfunction
 
   " popup_key_menu.Remove--------------------------------------------------------------------------
