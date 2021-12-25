@@ -69,6 +69,7 @@ function! pkm#PopupKeyMenu()
   let s:popup_key_menu.delimiter = '   '
   let s:popup_key_menu.ignorecase = 0
   let s:popup_key_menu.page_guide = 1
+  let s:popup_key_menu.xclose = 1
   let s:popup_key_menu.next_page_key = 'l'
   let s:popup_key_menu.prev_page_key = 'h'
   let s:popup_key_menu.key_guide = '[%k] '
@@ -144,6 +145,15 @@ function! pkm#PopupKeyMenu()
     return self
   endfunction
 
+  " popup_key_menu.__XClose------------------------------------------------------------------------
+  function! s:popup_key_menu.__XClose(winid, key) dict
+    if a:key == 'x'
+      call popup_close(a:winid, a:key)
+      return 1
+    endif
+    return 0
+  endfunction
+
   " popup_key_menu.__KeepInKeyRange----------------------------------------------------------------
   function! s:popup_key_menu.__KeepInKeyRange() dict
     return self.key_max > 0 ? self.key_max <= len(self.keys) ? self.key_max : len(self.keys) : 1
@@ -169,6 +179,12 @@ function! pkm#PopupKeyMenu()
   function! s:popup_key_menu.Filter(winid, key) dict
     if self.OnKeyPress(a:winid, a:key)
       return 1
+    endif
+
+    if self.xclose
+      if self.__XClose(a:winid, a:key)
+        return 1
+      endif
     endif
 
     let s:key_max = self.__KeepInKeyRange()
@@ -202,6 +218,11 @@ function! pkm#PopupKeyMenu()
           \ filter: s:scirpt_func_prefix.'CallPopupFilter',
           \ callback: s:scirpt_func_prefix.'CallPopupCallback',
           \}
+
+    if self.xclose
+      let self.options['close'] = 'button'
+    endif
+
     for [key, value] in items(a:options)
       let self.options[key] = value
     endfor
