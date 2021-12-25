@@ -98,6 +98,7 @@ function! pkm#PopupKeyMenu()
 
     let s:page = []
     let s:key_number = 0
+    let s:col_number = 0
     let s:line = ''
     let s:key_max = self.__KeepInKeyRange()
     let s:col_max = self.__KeepInColRange()
@@ -106,20 +107,23 @@ function! pkm#PopupKeyMenu()
     for w in self.what
       let s:line = s:line.substitute(self.key_guide ,'%k', self.keys[(s:key_number % s:key_max)], 'g').w
       let s:key_number += 1
+      let s:col_number += 1
 
-      if (s:key_number % s:col_max) > 0
+      if (s:col_number % s:col_max) > 0
         let s:line = s:line.self.delimiter
       endif
 
-      if (s:key_number % s:col_max) == 0
+      if (s:col_number % s:col_max) == 0
         call add(s:page, s:line)
         let s:line = ''
+        let s:col_number = 0
       endif
 
       if (s:key_number % s:key_max) == 0 || s:key_number == len(self.what)
-        if (s:key_number % s:col_max) > 0
+        if len(s:line) > 0
           call add(s:page, s:line)
           let s:line = ''
+          let s:col_number = 0
         endif
 
         if len(self.what) <= s:key_max
@@ -161,7 +165,7 @@ function! pkm#PopupKeyMenu()
 
   " popup_key_menu.__KeepInColRange----------------------------------------------------------------
   function! s:popup_key_menu.__KeepInColRange() dict
-    return self.col_max > 0 ? self.col_max : 1
+    return self.col_max > 0 ? self.col_max <= self.__KeepInKeyRange() ? self.col_max : self.__KeepInKeyRange() : 1
   endfunction
 
   " popup_key_menu.__AfterPageKeysRest-------------------------------------------------------------
