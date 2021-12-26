@@ -58,6 +58,20 @@ function! s:GetScriptNumber()
   return matchstr(expand('<SID>'), '<SNR>\zs\d\+\ze_')
 endfunction
 
+let s:spaces = '                                '
+function! s:DiffSpace(a, b)
+  let s:diff = a:a - a:b
+  if s:diff <= 0
+    return ''
+  endif
+
+  while s:diff > len(s:spaces)
+    let s:spaces = s:spaces.s:spaces
+  endwhile
+
+  return s:spaces[0:s:diff - 1]
+endfunction
+
 function! pkm#PopupKeyMenu()
   let s:popup_key_menu = {}
 
@@ -80,7 +94,7 @@ function! pkm#PopupKeyMenu()
         \ ]
   let s:popup_key_menu.options = #{}
 
-  " popup_key_menu.__PageGuides--------------------------------------------------------------------
+  " popup_key_menu.__InitPageGuides----------------------------------------------------------------
   function! s:popup_key_menu.__InitPageGuides() dict
     let s:guides = []
     for guide in self.page_guides
@@ -91,21 +105,44 @@ function! pkm#PopupKeyMenu()
     return s:guides
   endfunction
 
+  " popup_key_menu.__PageGuide---------------------------------------------------------------------
+  function! s:popup_key_menu.__PageGuide(guides, page_number) dict
+      if a:page_number == 0
+        let s:guide_index = 0
+      elseif a:page_number == len(self.pages) - 1
+        let s:guide_index = 2
+      else
+        let s:guide_index = 1
+      endif
+      return substitute(a:guides[s:guide_index], '%p', a:page_number, 'g')
+  endfunction
+
   " popup_key_menua.Load---------------------------------------------------------------------------
   function! s:popup_key_menu.Load(what) dict
     let self.what = a:what
-    let self.pages = []
 
-    let s:page = []
     let s:key_number = 0
     let s:col_number = 0
-    let s:line = ''
     let s:key_max = self.__KeepInKeyRange()
     let s:col_max = self.__KeepInColRange()
-    let s:page_guides = self.__InitPageGuides()
+
+    let s:cols = []
+    let s:lines = []
+    let s:pages = []
+
+    let s:max_lenghts = []
+    for i in range(1, s:col_max)
+      call add(s:max_lenghts, 0)
+    endfor
 
     for w in self.what
-      let s:line = s:line.substitute(self.key_guide ,'%k', self.keys[(s:key_number % s:key_max)], 'g').w
+      call add(s:cols, substitute(self.key_guide ,'%k', self.keys[(s:key_number % s:key_max)], 'g').w)
+
+      let s:col_idx = s:col_number % s:col_max
+      if s:max_lenghts[s:col_idx] < len(s:cols[s:col_idx])
+        let s:max_lenghts[s:col_idx] = len(s:cols[s:col_idx])
+      endif
+
       let s:key_number += 1
       let s:col_number += 1
 
@@ -114,38 +151,60 @@ function! pkm#PopupKeyMenu()
       endif
 
       if (s:col_number % s:col_max) == 0
-        call add(s:page, s:line)
-        let s:line = ''
+        call add(s:lines, s:cols)
+        let s:cols = []
         let s:col_number = 0
       endif
 
       if (s:key_number % s:key_max) == 0 || s:key_number == len(self.what)
-        if len(s:line) > 0
-          call add(s:page, s:line)
-          let s:line = ''
+        if len(s:cols) > 0
+          call add(s:lines, s:cols)
+          let s:cols = []
           let s:col_number = 0
         endif
 
-        if len(self.what) <= s:key_max
-          call add(self.pages, s:page)
-          break
-        endif
-
-        let self.pages_len = len(self.pages)
-        if self.page_guide
-          if self.pages_len == 0
-            let s:guide_index = 0
-          elseif (len(self.pages) + 1) * s:key_max < len(self.what)
-            let s:guide_index = 1
-          else
-            let s:guide_index = 2
-          endif
-          call add(s:page, substitute(s:page_guides[s:guide_index], '%p', self.pages_len, 'g'))
-        endif
-        call add(self.pages, s:page)
-        let s:page = []
+        call add(s:pages, s:lines)
+        let s:lines = []
       endif
     endfor
+
+    let self.pages = []
+    for l in s:pages
+      let s:page = []
+      for c in l
+        let s:line = ''
+        let s:col_nr = 0
+        for w in c
+          " fill in a ' ' at least
+          let s:line = s:line.w.' '.s:DiffSpace(s:max_lenghts[s:col_nr], len(w)).self.delimiter
+          let s:col_nr += 1
+        endfor
+        call add(s:page, s:line)
+      endfor
+      call add(self.pages, s:page)
+    endfor
+
+    if self.page_guide && len(s:pages) > 1
+
+      let s:window_length = 0
+      for l in s:max_lenghts
+        let s:window_length += l
+      endfor
+
+      let s:page_guides = self.__InitPageGuides()
+      for i in range(0, len(self.pages) - 1)
+        let s:guide_line = self.__PageGuide(s:page_guides, i)
+        let s:guide_spaces = s:DiffSpace(s:window_length, len(s:guide_line))
+        if len(s:guide_line) > 1
+          let s:guide_line =
+                \ s:guide_spaces[0:(len(s:guide_spaces) / 2) - 1]
+                \.s:guide_line
+                \.s:guide_spaces[(len(s:guide_spaces) / 2): -1]
+        endif
+        call add(self.pages[i], s:guide_line)
+      endfor
+    endif
+
     return self
   endfunction
 
