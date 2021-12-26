@@ -84,6 +84,7 @@ function! pkm#PopupKeyMenu()
   let s:popup_key_menu.ignorecase = 0
   let s:popup_key_menu.page_guide = 1
   let s:popup_key_menu.col_align = 1
+  let s:popup_key_menu.vert_align = 0
   let s:popup_key_menu.xclose = 1
   let s:popup_key_menu.next_page_key = 'l'
   let s:popup_key_menu.prev_page_key = 'h'
@@ -131,23 +132,8 @@ function! pkm#PopupKeyMenu()
     let s:lines = []
     let s:pages = []
 
-    let s:max_lenghts = []
-    if self.col_align
-      for i in range(1, s:col_max)
-        call add(s:max_lenghts, 0)
-      endfor
-    endif
-
     for w in self.what
       call add(s:cols, substitute(self.key_guide ,'%k', self.keys[(s:key_number % s:key_max)], 'g').w)
-
-      if self.col_align
-        let s:col_idx = s:col_number % s:col_max
-        if s:max_lenghts[s:col_idx] < len(s:cols[s:col_idx])
-          let s:max_lenghts[s:col_idx] = len(s:cols[s:col_idx])
-        endif
-      endif
-
       let s:key_number += 1
       let s:col_number += 1
 
@@ -173,16 +159,52 @@ function! pkm#PopupKeyMenu()
       endif
     endfor
 
+    " convert to vertical align
+    if self.vert_align
+      let s:vert_pages = []
+      for lines in s:pages
+        let s:vert_lines = []
+        for c in range(0, s:col_max - 1)
+          let s:vert_cols = []
+          for l in range(0, len(lines) - 1)
+            if len(lines[l]) - 1 >= c
+              call add(s:vert_cols, lines[l][c])
+            endif
+          endfor
+          call add(s:vert_lines, s:vert_cols)
+        endfor
+        call add(s:vert_pages, s:vert_lines)
+      endfor
+      let s:pages = s:vert_pages
+    endif
+
+    " max length per colmnu
+    let s:max_lenghts = []
+    if self.col_align
+      for i in range(1, len(s:pages[0][0]))
+        call add(s:max_lenghts, 0)
+      endfor
+    endif
+
+    for i in range(0, len(s:max_lenghts) - 1)
+      for lines in s:pages
+        for cols in lines
+          if len(cols) - 1 >= i && len(cols[i]) > s:max_lenghts[i]
+            let s:max_lenghts[i] = len(cols[i])
+          endif
+        endfor
+      endfor
+    endfor
+
     let self.pages = []
-    for l in s:pages
+    for lines in s:pages
       let s:page = []
-      for c in l
+      for cols in lines
         let s:line = ''
         let s:col_nr = 0
-        for w in c
+        for w in cols
           if self.col_align
-            " fill in a ' ' at least
-            let s:line = s:line.w.' '.s:DiffSpace(s:max_lenghts[s:col_nr], len(w)).self.delimiter
+            let s:line = s:line.w.s:DiffSpace(s:max_lenghts[s:col_nr], len(w)).self.delimiter
           else
             let s:line = s:line.w.self.delimiter
           endif
@@ -193,7 +215,12 @@ function! pkm#PopupKeyMenu()
       call add(self.pages, s:page)
     endfor
 
+
     if self.page_guide && len(s:pages) > 1
+      let s:del_len = len(self.delimiter)
+      for i in range(0, len(s:max_lenghts) - 1)
+        let s:max_lenghts[i] += s:del_len
+      endfor
 
       let s:window_length = 0
       for l in s:max_lenghts
