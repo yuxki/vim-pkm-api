@@ -78,13 +78,12 @@ function! pkm#PopupKeyMenu()
   " Constructor------------------------------------------------------------------------------------
   let s:popup_key_menu.what = []
   let s:popup_key_menu.keys ='abcdefimnopqrstuvwyz'
-  let s:popup_key_menu.key_max = 9
   let s:popup_key_menu.col_max = 1
   let s:popup_key_menu.delimiter = '   '
   let s:popup_key_menu.ignorecase = 0
   let s:popup_key_menu.page_guide = 1
-  let s:popup_key_menu.col_align = 1
-  let s:popup_key_menu.vert_align = 0
+  let s:popup_key_menu.align = 1
+  let s:popup_key_menu.vert_mode = 0
   let s:popup_key_menu.xclose = 1
   let s:popup_key_menu.next_page_key = 'l'
   let s:popup_key_menu.prev_page_key = 'h'
@@ -160,7 +159,7 @@ function! pkm#PopupKeyMenu()
     endfor
 
     " convert to vertical align
-    if self.vert_align
+    if self.vert_mode
       let s:vert_pages = []
       for lines in s:pages
         let s:vert_lines = []
@@ -180,7 +179,7 @@ function! pkm#PopupKeyMenu()
 
     " max length per colmnu
     let s:max_lenghts = []
-    if self.col_align
+    if self.align
       for i in range(1, len(s:pages[0][0]))
         call add(s:max_lenghts, 0)
       endfor
@@ -203,7 +202,7 @@ function! pkm#PopupKeyMenu()
         let s:line = ''
         let s:col_nr = 0
         for w in cols
-          if self.col_align
+          if self.align
             let s:line = s:line.w.s:DiffSpace(s:max_lenghts[s:col_nr], len(w)).self.delimiter
           else
             let s:line = s:line.w.self.delimiter
@@ -231,7 +230,7 @@ function! pkm#PopupKeyMenu()
       for i in range(0, len(self.pages) - 1)
         let s:guide_line = self.__PageGuide(s:page_guides, i)
 
-        if self.col_align
+        if self.align
           let s:guide_spaces = s:DiffSpace(s:window_length, len(s:guide_line))
           if len(s:guide_line) > 1
             let s:guide_line =
@@ -258,7 +257,7 @@ function! pkm#PopupKeyMenu()
 
   " popup_key_menu.__KeepInKeyRange----------------------------------------------------------------
   function! s:popup_key_menu.__KeepInKeyRange() dict
-    return self.key_max > 0 ? self.key_max <= len(self.keys) ? self.key_max : len(self.keys) : 1
+    return len(self.keys)
   endfunction
 
   " popup_key_menu.__KeepInColRange----------------------------------------------------------------
