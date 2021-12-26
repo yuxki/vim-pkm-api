@@ -78,7 +78,7 @@ function! pkm#PopupKeyMenu()
   " Constructor------------------------------------------------------------------------------------
   let s:popup_key_menu.what = []
   let s:popup_key_menu.keys ='abcdefimnopqrstuvwyz'
-  let s:popup_key_menu.col_max = 1
+  let s:popup_key_menu.max_cols_lines = 1
   let s:popup_key_menu.delimiter = '   '
   let s:popup_key_menu.ignorecase = 0
   let s:popup_key_menu.page_guide = 1
@@ -262,7 +262,9 @@ function! pkm#PopupKeyMenu()
 
   " popup_key_menu.__KeepInColRange----------------------------------------------------------------
   function! s:popup_key_menu.__KeepInColRange() dict
-    return self.col_max > 0 ? self.col_max <= self.__KeepInKeyRange() ? self.col_max : self.__KeepInKeyRange() : 1
+    return self.max_cols_lines > 0 ?
+          \ self.max_cols_lines <= self.__KeepInKeyRange() ? self.max_cols_lines : self.__KeepInKeyRange()
+          \ : 1
   endfunction
 
   " popup_key_menu.__AfterPageKeysRest-------------------------------------------------------------
