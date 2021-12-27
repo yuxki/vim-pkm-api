@@ -83,6 +83,8 @@ function! pkm#PopupKeyMenu()
   let s:popup_key_menu.ignorecase = 0
   let s:popup_key_menu.page_guide = 1
   let s:popup_key_menu.align = 1
+  let s:popup_key_menu.fix_width = 1
+  let s:popup_key_menu.fix_height = 1
   let s:popup_key_menu.vert_mode = 0
   let s:popup_key_menu.xclose = 1
   let s:popup_key_menu.next_page_key = 'l'
@@ -177,23 +179,26 @@ function! pkm#PopupKeyMenu()
       let s:pages = s:vert_pages
     endif
 
-    " max length per colmnu
-    let s:max_lenghts = []
+    " max col length list
+    let s:max_col_lens = []
     if self.align
       for i in range(1, len(s:pages[0][0]))
-        call add(s:max_lenghts, 0)
+        call add(s:max_col_lens, 0)
       endfor
     endif
 
-    for i in range(0, len(s:max_lenghts) - 1)
+    for i in range(0, len(s:max_col_lens) - 1)
       for lines in s:pages
         for cols in lines
-          if len(cols) - 1 >= i && len(cols[i]) > s:max_lenghts[i]
-            let s:max_lenghts[i] = len(cols[i])
+          if len(cols) - 1 >= i && len(cols[i]) > s:max_col_lens[i]
+            let s:max_col_lens[i] = len(cols[i])
           endif
         endfor
       endfor
     endfor
+
+    " max lines
+    let s:max_line_number = len(s:pages[0])
 
     let self.pages = []
     for lines in s:pages
@@ -203,26 +208,38 @@ function! pkm#PopupKeyMenu()
         let s:col_nr = 0
         for w in cols
           if self.align
-            let s:line = s:line.w.s:DiffSpace(s:max_lenghts[s:col_nr], len(w)).self.delimiter
+            let s:line = s:line.w.s:DiffSpace(s:max_col_lens[s:col_nr], len(w)).self.delimiter
           else
             let s:line = s:line.w.self.delimiter
           endif
           let s:col_nr += 1
         endfor
+        " fix width
+        if self.fix_width
+          for maxl in s:max_col_lens[s:col_nr:]
+            let s:line = s:line.s:DiffSpace(maxl + len(self.delimiter), 0)
+          endfor
+        endif
         call add(s:page, s:line)
       endfor
+      " fix height
+      if self.fix_height
+        while len(s:page) < s:max_line_number
+          call add(s:page, '')
+        endwhile
+      endif
       call add(self.pages, s:page)
     endfor
 
 
     if self.page_guide && len(s:pages) > 1
       let s:del_len = len(self.delimiter)
-      for i in range(0, len(s:max_lenghts) - 1)
-        let s:max_lenghts[i] += s:del_len
+      for i in range(0, len(s:max_col_lens) - 1)
+        let s:max_col_lens[i] += s:del_len
       endfor
 
       let s:window_length = 0
-      for l in s:max_lenghts
+      for l in s:max_col_lens
         let s:window_length += l
       endfor
 
