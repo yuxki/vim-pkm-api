@@ -79,7 +79,7 @@ function! pkm#PopupKeyMenu()
   let s:popup_key_menu.what = []
   let s:popup_key_menu.keys ='abcdefimnopqrstuvwyz'
   let s:popup_key_menu.max_cols_lines = 1
-  let s:popup_key_menu.delimiter = '   '
+  let s:popup_key_menu.delimiter = ' '
   let s:popup_key_menu.ignorecase = 0
   let s:popup_key_menu.page_guide = 1
   let s:popup_key_menu.align = 1
@@ -89,9 +89,9 @@ function! pkm#PopupKeyMenu()
   let s:popup_key_menu.prev_page_key = 'h'
   let s:popup_key_menu.key_guide = '[%k] '
   let s:popup_key_menu.page_guides = [
-        \ '  (%p) [%n] >>  ',
-        \ '  << [%v] (%p) [%n] >>  ',
-        \ '  << [%v] (%p)  ',
+        \ '       (%p) [%n] >>',
+        \ '<< [%v] (%p) [%n] >>',
+        \ '<< [%v] (%p)       ',
         \ ]
   let s:popup_key_menu.options = #{}
 
