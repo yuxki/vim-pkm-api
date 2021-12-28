@@ -83,8 +83,7 @@ function! pkm#PopupKeyMenu()
   let s:popup_key_menu.ignorecase = 0
   let s:popup_key_menu.page_guide = 1
   let s:popup_key_menu.align = 1
-  " 'auto', 'max', number, numbers list
-  let s:popup_key_menu.col_width = 'auto'
+  let s:popup_key_menu.col_width = 'auto' " 'auto', 'max', number, numbers list
   let s:popup_key_menu.fix_width = 0
   let s:popup_key_menu.fix_height = 0
   let s:popup_key_menu.vertical = 0
@@ -115,10 +114,6 @@ function! pkm#PopupKeyMenu()
       let s:key_number += 1
       let s:col_number += 1
 
-      if (s:col_number % s:col_max) > 0
-        let s:line = s:line.self.col_border
-      endif
-
       if (s:col_number % s:col_max) == 0
         call add(s:lines, s:cols)
         let s:cols = []
@@ -141,9 +136,10 @@ function! pkm#PopupKeyMenu()
   endfunction
 
   " popup_key_menu.__Convert2Vert------------------------------------------------------------------
-  function! s:popup_key_menu.__Convert2Vert(pages, max_cols) dict
+  function! s:popup_key_menu.__Convert2Vert(w_pages) dict
     let s:vert_pages = []
-    for lines in a:pages
+
+    for lines in a:w_pages
       let s:vert_lines = []
       for c in range(0, len(lines[0]) - 1)
         let s:vert_cols = []
@@ -156,11 +152,12 @@ function! pkm#PopupKeyMenu()
       endfor
       call add(s:vert_pages, s:vert_lines)
     endfor
+
     return s:vert_pages
   endfunction
 
   " popup_key_menu.__ColLens-------------------------------------------------------------------
-  function! s:popup_key_menu.__ColLens(pages) dict
+  function! s:popup_key_menu.__ColLens(w_pages) dict
     let s:col_lens = []
 
     if !self.align
@@ -168,7 +165,7 @@ function! pkm#PopupKeyMenu()
     endif
 
     let s:start = type(self.col_width) == 0 ? self.col_width : 0
-    for i in range(1, len(a:pages[0][0]))
+    for i in range(1, len(a:w_pages[0][0]))
       call add(s:col_lens, s:start)
     endfor
 
@@ -182,7 +179,7 @@ function! pkm#PopupKeyMenu()
     endif
 
     for i in range(0, len(s:col_lens) - 1)
-      for lines in a:pages
+      for lines in a:w_pages
         for cols in lines
           if len(cols) - 1 >= i && len(cols[i]) > s:col_lens[i]
             let s:col_lens[i] = len(cols[i])
@@ -192,33 +189,33 @@ function! pkm#PopupKeyMenu()
     endfor
 
     if type(self.col_width) == 1 && self.col_width == 'max'
-      let s:m = max(s:col_lens)
-      call map(s:col_lens, s:m)
+      let s:max = max(s:col_lens)
+      call map(s:col_lens, s:max)
     endif
 
     return s:col_lens
   endfunction
 
   " popup_key_menu.__FixHeight---------------------------------------------------------------------
-  function! s:popup_key_menu.__FixHeight(w_pages, max_col_lens, max_line_number) dict
+  function! s:popup_key_menu.__FixHeight(w_pages, col_lens, line_number) dict
     let s:blank_cols = []
 
-    while len(s:blank_cols) < len(a:max_col_lens)
+    while len(s:blank_cols) < len(a:col_lens)
       call add(s:blank_cols, '')
     endwhile
 
     for lines in a:w_pages
-      while len(lines) < a:max_line_number
+      while len(lines) < a:line_number
         call add(lines, s:blank_cols)
       endwhile
     endfor
   endfunction
 
   " popup_key_menu.__FixWidth----------------------------------------------------------------------
-  function! s:popup_key_menu.__FixWidth(w_pages, max_col_lens) dict
+  function! s:popup_key_menu.__FixWidth(w_pages, col_lens) dict
     for lines in a:w_pages
       for cols in lines
-        while len(cols) < len(a:max_col_lens)
+        while len(cols) < len(a:col_lens)
           call add(cols, '')
         endwhile
       endfor
@@ -236,11 +233,15 @@ function! pkm#PopupKeyMenu()
   endfunction
 
   " popup_key_menu.__PageGuides--------------------------------------------------------------------
-  function! s:popup_key_menu.__PageGuides(w_pages, max_col_lens) dict
+  function! s:popup_key_menu.__PageGuides(w_pages, col_lens) dict
     let s:guides = []
 
+    if len(a:w_pages) < 2
+      return s:guides
+    endif
+
     let s:guide_width = 0
-    for l in a:max_col_lens
+    for l in a:col_lens
       let s:guide_width += l + len(self.col_border)
     endfor
 
@@ -274,7 +275,7 @@ function! pkm#PopupKeyMenu()
   endfunction
 
   " popup_key_menu.__LoadPages---------------------------------------------------------------------
-  function! s:popup_key_menu.__LoadPages(w_pages, max_col_lens, page_guides) dict
+  function! s:popup_key_menu.__LoadPages(w_pages, col_lens, page_guides) dict
     let self.pages = []
 
     for lines in a:w_pages
@@ -284,7 +285,7 @@ function! pkm#PopupKeyMenu()
         let s:col_nr = 0
         for w in cols
           if self.align
-            let s:line = s:line.w.s:DiffSpace(a:max_col_lens[s:col_nr], len(w)).self.col_border
+            let s:line = s:line.w.s:DiffSpace(a:col_lens[s:col_nr], len(w)).self.col_border
           else
             let s:line = s:line.w.self.col_border
           endif
@@ -295,11 +296,9 @@ function! pkm#PopupKeyMenu()
       call add(self.pages, s:page)
     endfor
 
-    if len(self.pages) == len(s:page_guides)
-      for i in range(0, len(s:page_guides) - 1)
-        call add(self.pages[i], s:page_guides[i])
-      endfor
-    endif
+    for i in range(0, len(s:page_guides) - 1)
+      call add(self.pages[i], s:page_guides[i])
+    endfor
   endfunction
 
   " popup_key_menu.Load----------------------------------------------------------------------------
@@ -309,7 +308,7 @@ function! pkm#PopupKeyMenu()
 
     " convert to vertical align
     if self.vertical
-      let s:w_pages = self.__Convert2Vert(s:w_pages, s:col_max)
+      let s:w_pages = self.__Convert2Vert(s:w_pages)
     endif
 
     " get max cols and lines
@@ -327,9 +326,7 @@ function! pkm#PopupKeyMenu()
     endif
 
     " get page guides
-    if len(s:w_pages) > 1
-      let s:page_guides = self.__PageGuides(s:w_pages, s:max_col_lens)
-    endif
+    let s:page_guides = self.__PageGuides(s:w_pages, s:max_col_lens)
 
     " load working pages into self.pages
     call self.__LoadPages(s:w_pages, s:max_col_lens, s:page_guides)
