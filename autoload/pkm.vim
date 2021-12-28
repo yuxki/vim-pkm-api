@@ -79,7 +79,7 @@ function! pkm#PopupKeyMenu()
   let s:popup_key_menu.what = []
   let s:popup_key_menu.keys ='abcdefimnopqrstuvwyz'
   let s:popup_key_menu.max_cols_lines = 1
-  let s:popup_key_menu.delimiter = ' '
+  let s:popup_key_menu.col_border = ' '
   let s:popup_key_menu.ignorecase = 0
   let s:popup_key_menu.page_guide = 1
   let s:popup_key_menu.align = 1
@@ -104,7 +104,7 @@ function! pkm#PopupKeyMenu()
     let s:vert_pages = []
     for lines in s:pages
       let s:vert_lines = []
-      for c in range(0, a:max_cols - 1)
+      for c in range(0, len(lines[0]) - 1)
         let s:vert_cols = []
         for l in range(0, len(lines) - 1)
           if len(lines[l]) - 1 >= c
@@ -150,7 +150,7 @@ function! pkm#PopupKeyMenu()
       endfor
     endfor
 
-    if self.col_width == 'max'
+    if type(self.col_width) == 1 && self.col_width == 'max'
       let s:m = max(s:col_lens)
       call map(s:col_lens, s:m)
     endif
@@ -200,7 +200,7 @@ function! pkm#PopupKeyMenu()
       let s:col_number += 1
 
       if (s:col_number % s:col_max) > 0
-        let s:line = s:line.self.delimiter
+        let s:line = s:line.self.col_border
       endif
 
       if (s:col_number % s:col_max) == 0
@@ -227,8 +227,27 @@ function! pkm#PopupKeyMenu()
     endif
 
     " max cols and lines
-    let s:max_col_lens = self.__ColLens(s:pages)
+    " fix height
     let s:max_line_number = len(s:pages[0])
+    if self.align && self.fix_height
+      for lines in s:pages
+        while len(lines) < s:max_line_number
+          call add(lines, [])
+        endwhile
+      endfor
+    endif
+
+    " fix width
+    let s:max_col_lens = self.__ColLens(s:pages)
+    if self.align && self.fix_width
+      for lines in s:pages
+        for cols in lines
+          while len(cols) < len(s:max_col_lens)
+            call add(cols, '')
+          endwhile
+        endfor
+      endfor
+    endif
 
     let self.pages = []
     for lines in s:pages
@@ -238,32 +257,19 @@ function! pkm#PopupKeyMenu()
         let s:col_nr = 0
         for w in cols
           if self.align
-            let s:line = s:line.w.s:DiffSpace(s:max_col_lens[s:col_nr], len(w)).self.delimiter
+            let s:line = s:line.w.s:DiffSpace(s:max_col_lens[s:col_nr], len(w)).self.col_border
           else
-            let s:line = s:line.w.self.delimiter
+            let s:line = s:line.w.self.col_border
           endif
           let s:col_nr += 1
         endfor
-        " fix width
-        if self.align && self.fix_width
-          for maxl in s:max_col_lens[s:col_nr:]
-            let s:line = s:line.s:DiffSpace(maxl + len(self.delimiter), 0)
-          endfor
-        endif
         call add(s:page, s:line)
       endfor
-      " fix height
-      if self.align && self.fix_height
-        while len(s:page) < s:max_line_number
-          call add(s:page, '')
-        endwhile
-      endif
       call add(self.pages, s:page)
     endfor
 
-
     if self.page_guide && len(s:pages) > 1
-      let s:del_len = len(self.delimiter)
+      let s:del_len = len(self.col_border)
       for i in range(0, len(s:max_col_lens) - 1)
         let s:max_col_lens[i] += s:del_len
       endfor
