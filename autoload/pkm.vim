@@ -227,18 +227,25 @@ function! pkm#PopupKeyMenu()
     endif
 
     " max cols and lines
-    " fix height
+    let s:max_col_lens = self.__ColLens(s:pages)
     let s:max_line_number = len(s:pages[0])
+
+    " fix height
     if self.align && self.fix_height
+      let s:blank_cols = []
+
+      while len(s:blank_cols) < len(s:max_col_lens)
+        call add(s:blank_cols, '')
+      endwhile
+
       for lines in s:pages
         while len(lines) < s:max_line_number
-          call add(lines, [])
+          call add(lines, s:blank_cols)
         endwhile
       endfor
     endif
 
     " fix width
-    let s:max_col_lens = self.__ColLens(s:pages)
     if self.align && self.fix_width
       for lines in s:pages
         for cols in lines
