@@ -225,17 +225,6 @@ function! pkm#PopupKeyMenu()
     endfor
   endfunction
 
-  " popup_key_menu.__InitPageGuides----------------------------------------------------------------
-  "function! s:popup_key_menu.__InitPageGuides() dict
-  "  let s:guides = []
-  "  for guide in self.page_guides
-  "    call add(s:guides, substitute(
-  "          \ substitute(guide, '%n', self.next_page_key, 'g'),
-  "          \ '%v', self.prev_page_key, 'g'))
-  "  endfor
-  "  return s:guides
-  "endfunction
-
   " popup_key_menu.__PageGuide---------------------------------------------------------------------
   function! s:popup_key_menu.__PageGuide(page_number, guide_index) dict
     return substitute(
