@@ -1,4 +1,4 @@
-*pkm.txt*  For Vim version 8.2+   Last change: 2021/12/29
+*pkm.txt*  For Vim version 8.2   Last change: 2021/12/29
 
 Customable Key Oriented Popup Menu.
 
@@ -40,7 +40,7 @@ This sample program open the above popup menu that prints color name
 according to the the key. The key 'x' closes the popup. Set 0 to the
 |pkm.xclose| to disable this util.
 
-Note: See |pkm-samples| to get more "plugin like"" samples.
+Note: See |pkm-samples| to get more "plugin like" samples.
 >
  let s:colors = ['red', 'blue', 'yellow', 'orange']
  let s:popup_options = #{
@@ -67,10 +67,11 @@ Note: See |pkm-samples| to get more "plugin like"" samples.
  endfunction
 <
 #1 The constructed pkm |dict| is managed by |pkm.pkm_id| key in
-|g:pkm_api_popup_key_menus|. Check if the pkm_id is exists in the global
-variable and you can reuse the pkm dict.
+the script variable dict ({ pkm_id : pkm_dict }). `pkm#Exists()` checks if
+the pkm_id is exists in the script variable dict, and you can reuse the
+pkm dict.
 
-#2 The |pkm-properties| changes the pkm popup behavior. In this sample,
+#2 The |pkm-props| changes the pkm popup behavior. In this sample,
 '[key] item' pairs will be displayed with 2 columns, and '[key]' will be
 the keys 'r', 'b', 'y', 'o'.
 
@@ -114,7 +115,21 @@ the |pkm.page_guides| property.
 ==============================================================================
 3. Install						*pkm-install*
 
-Plug 'yuxki/vim-pkm-api'
+With vim-plug:
+>
+ Plug 'yuxki/vim-pkm-api'
+<
+Combining your plugin:
+
+Download and put the "autoload/pkm.vim" from
+
+ https://github.com/yuxki/vim-pkm-api
+
+into your plugin directory, and rename interface functions with a commad
+like the following.
+>
+ sed -i -e 's|pkm#|foo#pkm#|g' path/to/your/plugin/autoload/foo/pkm.vim
+<
 ==============================================================================
 4. Interface						*pkm-interface*
 
