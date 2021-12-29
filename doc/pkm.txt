@@ -51,18 +51,18 @@ Note: See |pkm-samples| to get more "plugin like" samples.
 
  function! SamplePkm()
    if !pkm#Exists(s:pkm_id)
-     let s:pkm = pkm#PopupKeyMenu() " #1
-     let s:pkm.max_cols_lines = 2 " #2
+     let s:pkm = pkm#PopupKeyMenu()		" #1
+     let s:pkm.max_cols_lines = 2		" #2
      let s:pkm.keys ='rbyo'
 
-     function! s:pkm.OnKeySelect(winid, index) " #3
+     function! s:pkm.OnKeySelect(winid, index)  " #3
        echo s:colors[a:index]
      endfunction
 
-     call s:pkm.Load(s:colors) " #4
+     call s:pkm.Load(s:colors)			" #4
    endif
 
-   call s:pkm.Open(s:popup_options) " #5
+   call s:pkm.Open(s:popup_options)		" #5
    let s:pkm_id = s:pkm.pkm_id
  endfunction
 <
@@ -140,31 +140,62 @@ POPUP KEY MENU						*pkm-popup-key-menu*
 pkm#PopupKeyMenu()					*pkm#PopupKeyMenu()*
 
 		Constuct and register the pkm dict into
-		|g:pkm_api_popup_key_menus| by the pkm_id key.
-		This id is assigned from |g:pkm_api_popup_key_menu_id| and it
-		is incremented.
+		the unique "script variable dict" by the pkm_id key.
+		This id is assigned from the unique "script variable number"
+		that is incremented: >
+
+ 			:call pkm#PopupKeyMenu()
+			:echo pkm#PkmMenus()
+			{'1000': {...}}
+
+ 			:call pkm#PopupKeyMenu()
+			:echo pkm#PkmMenus()
+			{'1000': {...}, '1001': {...}}
+<
 
 		Returns the constructed dict, which has |pkm.pkm_id|, it can
-		be used to get the pkm dict: >
+		be used to get or check existing the pkm dict: >
  			:let pkm_id = ''
- 			:if !has_key(g:pkm_api_popup_key_menus, pkm_id)
+ 			:if !pkm#Exists(pkm_id)
  			:  let pkm = pkm#PopupKeyMenu()
  			:  let pkm_id = pkm.pkm_id
 			:endif
 
 pkm.Load({items})					*pkm.Load()*
 
-		Load the {items} and some |pkm-properties|. {items} is a string
-		list, and a item is displayed next to a assigned key.
-		As a result, |pkm.pages| is created.
+		Load the {items} and some |pkm-props|. {items} is a
+		string list, and a item is displayed next to a assigned key.
+		As a result, the |pkm.pages| is created: >
 
-		If you change items or loaded properties, you need reload
-		with calling this method again.
-
-		Returns self, then you can construct ~ open in one line: >
-			:pkm#PopupKeyMenu().Load(items).Open(options)
+			:let id = pkm#PopupKeyMenu()
+ 			:let s:pkm.max_cols_lines = 2
+ 			:let pkm.keys ='abcd'
+ 			:call pkm.Load(items)
+			:echo pkm#PkmMenus()[id].pages
+			[['[a] AAA [b] BBB ', '[c] CCC [d] DDD ']]
 <
+		If items or loaded props are changed, you need reload
+		with calling this method again.
+		Loaded props are following:
 
+			keys
+			max_cols_lines
+			col_border
+			page_guide
+			align
+			col_width
+			fix_width
+			fix_height
+			vertical
+			xclose
+			key_guide
+			page_guides
+			next_page_key
+			prev_page_key
+
+		Returns self dict, so can construct ~ open in a line: >
+			:call pkm#PopupKeyMenu().Load(items).Open(options)
+<
 pkm.Open({options})					*pkm.Open()*
 
 		Open .
