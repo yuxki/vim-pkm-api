@@ -1,4 +1,4 @@
-pkm*.txt*	For Vim version 8.2+ 	Last change: 2021/12/24
+*pkm.txt*  For Vim version 8.2+   Last change: 2021/12/29
 
 Customable Key Oriented Popup Menu.
 
@@ -10,29 +10,31 @@ Repository: https://github.com/yuxki/vim-pkm-api
 ==============================================================================
 CONTENTS 						*pkm-contents*
 
-Introduction		|pkm-introduction|
-Usage			|pkm-usage|
-Install			|pkm-install|
-Interface		|pkm-interface|
-  Functions		  |pkm-functions|
-  Handlers		  |pkm-handlers|
-  Properties		  |pkm-properties|
-  Variables		  |pkm-variables|
-Samples			  |pkm-samples|
+1. Introduction		|pkm-intro|
+2. Usage		|pkm-usage|
+3. Install		|pkm-install|
+4. Interface		|pkm-interface|
+   Popup Key Menu	|pkm-popup-key-menu|
+   Handlers		|pkm-handlers|
+   Props		|pkm-props|
+   Prop Details		|pkm-prop-details|
+   Other Functions	|pkm-other-functions|
+   Variables		|pkm-variables|
+5. Samples		|pkm-samples|
 
 ==============================================================================
-INTRODUCTION						*pkm-introduction*
+1. Introduction						*pkm-intro*
 
-The pkm (Popup Key Menu) is customable and key oriented popup menu.
-See |popup.txt| for details on popup.
+The pkm (Popup Key Menu) is customable and the alphabet and number keys
+oriented popup menu. See |popup.txt| for details on popup.
 
 ==============================================================================
-USAGE							*pkm-usage*
+2. Usage						*pkm-usage*
 >
- +-------------------------X
- | [r] red   [b] blue      |
- | [y] yellow   [o] orange |
- +-------------------------+
+ +------------------------X
+ | [r] red    [b] blue    |
+ | [y] yellow [o] orange  |
+ +------------------------+
 <
 This sample program open the above popup menu that prints color name
 according to the the key. The key 'x' closes the popup. Set 0 to the
@@ -48,11 +50,9 @@ Note: See |pkm-samples| to get more "plugin like"" samples.
  let s:pkm_id = ''
 
  function! SamplePkm()
-   if !has_key(g:pkm_api_popup_key_menus, s:pkm_id)
+   if !pkm#Exists(s:pkm_id)
      let s:pkm = pkm#PopupKeyMenu() " #1
-     let s:pkm_id = s:pkm.pkm_id
-
-     let s:pkm.col_max = 2 " #2
+     let s:pkm.max_cols_lines = 2 " #2
      let s:pkm.keys ='rbyo'
 
      function! s:pkm.OnKeySelect(winid, index) " #3
@@ -63,6 +63,7 @@ Note: See |pkm-samples| to get more "plugin like"" samples.
    endif
 
    call s:pkm.Open(s:popup_options) " #5
+   let s:pkm_id = s:pkm.pkm_id
  endfunction
 <
 #1 The constructed pkm |dict| is managed by |pkm.pkm_id| key in
@@ -73,14 +74,14 @@ variable and you can reuse the pkm dict.
 '[key] item' pairs will be displayed with 2 columns, and '[key]' will be
 the keys 'r', 'b', 'y', 'o'.
 
-#3 The |pkm-handlers| can be used by overriding. The |pkm.OnKeySelect()| will be
+#3 The |pkm-handlers| can be used by overriding. The `pkm.OnKeySelect()` will be
 called when the key is selected. In this case, the key 'r' returns 0, and the
 key 'o' returns 3.
 
-#4 The colors and the properties are loaded by the |pkm.Load()|. Now pkm
+#4 The colors and the properties are loaded by the `pkm.Load()`. Now pkm
 popup can be opend.
 
-#5 The |pkm.Open()| calls |popup_create()| with the options argument. See
+#5 The `pkm.Open()` calls `popup_create()` with the options argument. See
 |popup_create-arguments| for details on the options.
 >
  let s:colors = ['red', 'blue', 'yellow', 'orange',
@@ -89,48 +90,69 @@ popup can be opend.
 <
 If you load a List has items more than |pkm.key| length, items separated by
 pages. On the default behavior, the key 'l' transits to next page, and the
-key 'h' does the opposite of that.
+key 'h' does the opposite of that. The page guide can be customized by
+the |pkm.page_guides| property.
 >
- +-------------------------X
- | [r] red   [b] blue      |
- | [y] yellow   [o] orange |
- |   (0) [l] >>            |
- +-------------------------+
+ +------------------------------------X
+ | [r] red          [b] blue          |
+ | [y] yellow       [o] orange        |
+ |                (0) [L] >>          |
+ +------------------------------------+
 
- +-----------------------------------X
- | [r] dark-red   [b] dark-blue      |
- | [y] dark-yellow   [o] dark-orange |
- |   << [h] (1) [l] >>               |
- +-----------------------------------+
+ +------------------------------------X
+ | [r] dark-red     [b] dark-blue     |
+ | [y] dark-yellow  [o] dark-orange   |
+ |         << [H] (1) [L] >>          |
+ +------------------------------------+
 
- +-------------------------------------X
- | [r] light-red   [b] light-blue      |
- | [y] light-yellow   [o] light-orange |
- |   << [h] (2)                        |
- +-------------------------------------+
+ +------------------------------------X
+ | [r] light-red    [b] light-blue    |
+ | [y] light-yellow [o] light-orange  |
+ |         << [H] (2)                 |
+ +------------------------------------+
 <
 ==============================================================================
-INTERFACE						*pkm-interface*
+3. Install						*pkm-install*
+
+Plug 'yuxki/vim-pkm-api'
+==============================================================================
+4. Interface						*pkm-interface*
 
 ------------------------------------------------------------------------------
-FUNCTIONS						*pkm-functions*
+POPUP KEY MENU						*pkm-popup-key-menu*
 
 
 pkm#PopupKeyMenu()					*pkm#PopupKeyMenu()*
 
-		Description about the function.
+		Constuct and register the pkm dict into
+		|g:pkm_api_popup_key_menus| by the pkm_id key.
+		This id is assigned from |g:pkm_api_popup_key_menu_id| and it
+		is incremented.
 
+		Returns the constructed dict, which has |pkm.pkm_id|, it can
+		be used to get the pkm dict: >
+ 			:let pkm_id = ''
+ 			:if !has_key(g:pkm_api_popup_key_menus, pkm_id)
+ 			:  let pkm = pkm#PopupKeyMenu()
+ 			:  let pkm_id = pkm.pkm_id
+			:endif
 
+pkm.Load({items})					*pkm.Load()*
 
-pkm.Load({what})					*pkm.Load()*
+		Load the {items} and some |pkm-properties|. {items} is a string
+		list, and a item is displayed next to a assigned key.
+		As a result, |pkm.pages| is created.
 
-		Description about the function.
+		If you change items or loaded properties, you need reload
+		with calling this method again.
 
-
+		Returns self, then you can construct ~ open in one line: >
+			:pkm#PopupKeyMenu().Load(items).Open(options)
+<
 
 pkm.Open({options})					*pkm.Open()*
 
-		Description about the function.
+		Open .
 
 
 
@@ -142,6 +164,7 @@ pkm.Filter({winid}, {key})				*pkm.Filter()*
 pkm.Remove()						*pkm.Remove()*
 
 		Description about the function.
+
 
 ------------------------------------------------------------------------------
 HANDLERS						*pkm-handlers*
@@ -166,9 +189,38 @@ pkm.OnClose()						*pkm.OnClose()*
 
 		Description about the function.
 ------------------------------------------------------------------------------
-PROPERTIES						*pkm-properties*
+PROPS							*pkm-props*
+	pkm.winid
+	pkm.pkm_id
+	pkm.pages
+	pkm.keys
+	pkm.max_cols_lines
+	pkm.col_border
+	pkm.align
+	pkm.col_width
+	pkm.fix_width
+	pkm.fix_height
+	pkm.vertical
+	pkm.xclose
+	pkm.page_guide
+	pkm.ignorecase
+	pkm.next_page_key
+	pkm.prev_page_key
+	pkm.key_guide
+	pkm.page_guides
+	pkm.active_modes
+	pkm.focus
+------------------------------------------------------------------------------
+PROP DETAILS						*pkm-prop-details*
 
+pkm.winid						*pkm.winid*
+
+		Write
 pkm.pkm_id						*pkm.pkm_id*
+
+		Write
+
+pkm.pages						*pkm.pages*
 
 		Write
 
@@ -176,37 +228,53 @@ pkm.keys						*pkm.keys*
 
 		Default: 'abcdefimnopqrstuvwyz'
 
-pkm.key_max						*pkm.key_max*
-
-		Default: 9
-
-pkm.col_max						*pkm.col_max*
+pkm.max_cols_lines					*pkm.max_cols_lines*
 
 		Default: 1
+
+pkm.col_border						*pkm.col_border*
+
+		Default: ' '
+
+pkm.align						*pkm.align*
+
+		Default: 1
+
+pkm.col_width						*pkm.col_width*
+
+		Default: 'auto'
+
+pkm.fix_width						*pkm.fix_width*
+
+		Default: 0
+
+pkm.fix_height						*pkm.fix_height*
+
+		Default: 0
+
+pkm.vertical						*pkm.vertical*
+
+		Default: 0
 
 pkm.xclose						*pkm.xclose*
 
 		Default: 1
 
-pkm.delimiter						*pkm.delimiter*
+pkm.page_guide						*pkm.page_guide*
 
-		Default: '   '
+		Default: 1
 
 pkm.ignorecase						*pkm.ignorecase*
 
 		Default: 0
 
-pkm.page_guide						*pkm.page_guide*
-
-		Default: 1
-
 pkm.next_page_key					*pkm.next_page_key*
 
-		Default: 'l'
+		Default: 'L'
 
 pkm.prev_page_key					*pkm.prev_page_key*
 
-		Default: 'h'
+		Default: 'H'
 
 pkm.key_guide						*pkm.key_guide*
 
@@ -215,21 +283,50 @@ pkm.key_guide						*pkm.key_guide*
 pkm.page_guides						*pkm.page_guides*
 
 		Default: [
-			\ '  (%p) [%n] >>  ',
-			\ '  << [%v] (%p) [%n] >>  ',
-			\ '  << [%v] (%p)  ',
-			\ ]
+		\ '       (%p) [%n] >>',
+		\ '<< [%v] (%p) [%n] >>',
+		\ '<< [%v] (%p)       ',
+		\ ]
+
+
+pkm.active_modes					*pkm.active_modes*
+
+		Default: ['n']
+
+pkm.focus						*pkm.focus*
+
+		Default: 1
+
+------------------------------------------------------------------------------
+OTHER FUNCTIONS						*pkm-other-functions*
+
+pkm#PkmMenus()						*pkm#PkmMenus()*
+
+		Description about the function.
+
+pkm#NextId()						*pkm#NextId()*
+
+		Description about the function.
+
+pkm#Clear()						*pkm#Clear()*
+
+		Description about the function.
+
+pkm#Exists({pkmid})					*pkm#Exists()*
+
+		Description about the function.
+
 ------------------------------------------------------------------------------
 VARIABLES						*pkm-variables*
 
-						*g:pkm_api_popup_key_menus*
-g:pkm_api_popup_key_menus
+						  *s:pkm_api_popup_key_menus*
+s:pkm_api_popup_key_menus
 
 		Description about the variable.
 
 
-						*g:pkm_api_popup_key_menu_id*
-g:pkm_api_popup_key_menu_id
+						*s:pkm_api_popup_key_menu_id*
+s:pkm_api_popup_key_menu_id
 
 		Description about the variable.
 ==============================================================================
