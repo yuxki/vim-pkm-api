@@ -28,27 +28,44 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
-if !exists('g:pkm_api_popup_key_menus')
-  let g:pkm_api_popup_key_menus = {}
-endif
+let s:pkm_api_popup_key_menus = {}
+let s:pkm_api_popup_key_menu_id = 1000
 
-if !exists('g:pkm_api_popup_key_menu_id')
-  let g:pkm_api_popup_key_menu_id = 1000
-endif
+function! pkm#PkmMenus()
+  return s:pkm_api_popup_key_menus
+endfunction
+
+function! pkm#NextId()
+  return s:pkm_api_popup_key_menu_id
+endfunction
+
+function! pkm#Exists(id)
+  return has_key(s:pkm_api_popup_key_menus, a:id)
+endfunction
+
+function! pkm#Clear()
+  let s:winids = popup_list()
+  for pkm in s:pkm_api_popup_key_menus
+    if index(s:winids, pkm.winid) >= 0
+      call popup_close(pkm.winid)
+    endif
+  endfor
+  let s:pkm_api_popup_key_menus = {}
+endfunction
 
 function! s:CallPopupFilter(winid, key)
-  for [key, value] in items(g:pkm_api_popup_key_menus)
+  for [key, value] in items(s:pkm_api_popup_key_menus)
     if value['winid'] == a:winid
-      return g:pkm_api_popup_key_menus[key].Filter(a:winid, a:key)
+      return s:pkm_api_popup_key_menus[key].Filter(a:winid, a:key)
     endif
   endfor
   return 0
 endfunction
 
 function! s:CallPopupCallback(winid, key)
-  for [key, value] in items(g:pkm_api_popup_key_menus)
+  for [key, value] in items(s:pkm_api_popup_key_menus)
     if value['winid'] == a:winid
-      return g:pkm_api_popup_key_menus[key].OnClose(a:winid, a:key)
+      return s:pkm_api_popup_key_menus[key].OnClose(a:winid, a:key)
     endif
   endfor
   return 0
@@ -76,6 +93,7 @@ function! pkm#PopupKeyMenu()
   let s:popup_key_menu = {}
 
   " Constructor------------------------------------------------------------------------------------
+  let s:popup_key_menu.winid = -1
   let s:popup_key_menu.what = []
   let s:popup_key_menu.keys ='abcdefimnopqrstuvwyz'
   let s:popup_key_menu.max_cols_lines = 1
@@ -435,7 +453,7 @@ function! pkm#PopupKeyMenu()
 
   " popup_key_menu.Remove--------------------------------------------------------------------------
   function! s:popup_key_menu.Remove() dict
-    call remove(g:pkm_api_popup_key_menus, self.pkm_api_popup_key_menu_id)
+    call remove(s:pkm_api_popup_key_menus, self.pkm_api_popup_key_menu_id)
   endfunction
 
   " Handlers ======================================================================================
@@ -456,9 +474,9 @@ function! pkm#PopupKeyMenu()
   function! s:popup_key_menu.OnClose(winid, key) dict
   endfunction
 
-  let g:pkm_api_popup_key_menus[string(g:pkm_api_popup_key_menu_id)] = s:popup_key_menu
-  let s:popup_key_menu.pkm_id = g:pkm_api_popup_key_menu_id
-  let g:pkm_api_popup_key_menu_id += 1
+  let s:pkm_api_popup_key_menus[string(s:pkm_api_popup_key_menu_id)] = s:popup_key_menu
+  let s:popup_key_menu.pkm_id = s:pkm_api_popup_key_menu_id
+  let s:pkm_api_popup_key_menu_id += 1
 
   return s:popup_key_menu
 endfunction
