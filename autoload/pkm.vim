@@ -99,7 +99,6 @@ function! pkm#PopupKeyMenu()
   let s:popup_key_menu.keys ='abcdefimnopqrstuvwyz'
   let s:popup_key_menu.max_cols_lines = 1
   let s:popup_key_menu.col_border = ' '
-  let s:popup_key_menu.ignorecase = 0
   let s:popup_key_menu.page_guide = 1
   let s:popup_key_menu.align = 1
   let s:popup_key_menu.col_width = 'auto' " 'auto', 'max', number, numbers list
@@ -114,6 +113,7 @@ function! pkm#PopupKeyMenu()
         \ '<< [%v] (%p)       ',
         \ ]
   " Filter
+  let s:popup_key_menu.ignorecase = 0
   let s:popup_key_menu.next_page_key = 'L'
   let s:popup_key_menu.prev_page_key = 'H'
   let s:popup_key_menu.active_modes= ['n']
