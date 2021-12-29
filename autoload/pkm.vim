@@ -1,6 +1,7 @@
 " Filename: pkm.vim
 " Version: 0.1.0
 " Author: yuxki
+" Repository: https://github.com/yuxki/vim-pkm-api
 " Last Change: 2021/12/24
 "
 " MIT License
