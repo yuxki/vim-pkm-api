@@ -44,10 +44,9 @@ function! pkm#Exists(id)
 endfunction
 
 function! pkm#Clear()
-  let s:winids = popup_list()
-  for pkm in s:pkm_api_popup_key_menus
-    if index(s:winids, pkm.winid) >= 0
-      call popup_close(pkm.winid)
+  for value in values(s:pkm_api_popup_key_menus)
+    if index(popup_list(), value.winid) >= 0
+      call popup_close(value.winid)
     endif
   endfor
   let s:pkm_api_popup_key_menus = {}
@@ -93,7 +92,9 @@ function! pkm#PopupKeyMenu()
   let s:popup_key_menu = {}
 
   " Constructor------------------------------------------------------------------------------------
+  " General
   let s:popup_key_menu.winid = -1
+  " Load
   let s:popup_key_menu.what = []
   let s:popup_key_menu.keys ='abcdefimnopqrstuvwyz'
   let s:popup_key_menu.max_cols_lines = 1
@@ -106,14 +107,18 @@ function! pkm#PopupKeyMenu()
   let s:popup_key_menu.fix_height = 0
   let s:popup_key_menu.vertical = 0
   let s:popup_key_menu.xclose = 1
-  let s:popup_key_menu.next_page_key = 'l'
-  let s:popup_key_menu.prev_page_key = 'h'
   let s:popup_key_menu.key_guide = '[%k] '
   let s:popup_key_menu.page_guides = [
         \ '       (%p) [%n] >>',
         \ '<< [%v] (%p) [%n] >>',
         \ '<< [%v] (%p)       ',
         \ ]
+  " Filter
+  let s:popup_key_menu.next_page_key = 'L'
+  let s:popup_key_menu.prev_page_key = 'H'
+  let s:popup_key_menu.active_modes= ['n']
+  let s:popup_key_menu.focus = 1
+  " Open
   let s:popup_key_menu.options = #{}
 
   " popup_key_menu.__WorkingPages------------------------------------------------------------------
@@ -386,6 +391,10 @@ function! pkm#PopupKeyMenu()
 
   " popup_key_menu.Filter--------------------------------------------------------------------------
   function! s:popup_key_menu.Filter(winid, key) dict
+    if index(self.active_modes, mode()) < 0
+      return 0
+    endif
+
     if self.OnKeyPress(a:winid, a:key)
       return 1
     endif
@@ -398,13 +407,17 @@ function! pkm#PopupKeyMenu()
 
     let s:key_max = self.__KeepInKeyRange()
 
-    if a:key == self.next_page_key && self.__AfterPageKeysRest() > 0
-      let self.page_number += 1
-      call popup_settext(a:winid, self.pages[self.page_number])
+    if a:key ==# self.next_page_key
+      if self.__AfterPageKeysRest() > 0
+        let self.page_number += 1
+        call popup_settext(a:winid, self.pages[self.page_number])
+      endif
       return 1
-    elseif a:key == self.prev_page_key && self.page_number > 0
-      let self.page_number -= 1
-      call popup_settext(a:winid, self.pages[self.page_number])
+    elseif a:key ==# self.prev_page_key
+      if self.page_number > 0
+        let self.page_number -= 1
+        call popup_settext(a:winid, self.pages[self.page_number])
+      endif
       return 1
     endif
 
@@ -413,11 +426,11 @@ function! pkm#PopupKeyMenu()
       if (self.__AfterPageKeysRest() >= 0 && self.keys[0:s:key_max - 1] =~# a:key) ||
        \ (len(self.what) % s:key_max > 0 && self.keys[0:(len(self.what) % s:key_max) - 1] =~# a:key)
         call self.OnKeySelect(a:winid, self.__SearchKeyIndex(a:key) + (self.page_number * s:key_max))
+        return 1
       endif
-      return 1
     endif
 
-    return 0
+    return self.focus == 1 ? 1 : 0
   endfunction
 
   " popup_key_menu.__InitPopupOptions--------------------------------------------------------------
