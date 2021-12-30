@@ -97,6 +97,7 @@ function! pkm#PopupKeyMenu()
   let s:popup_key_menu.winid = -1
   " Load
   let s:popup_key_menu.what = []
+  let s:popup_key_menu.pages = []
   let s:popup_key_menu.keys ='abcdefimnopqrstuvwyz'
   let s:popup_key_menu.max_cols_lines = 1
   let s:popup_key_menu.col_border = ' '
@@ -455,8 +456,12 @@ function! pkm#PopupKeyMenu()
   function! s:popup_key_menu.Open(options) dict
     call self.__InitPopupOptions(a:options)
 
-    if len(self.what) <= 0
-      return
+    if len(self.pages) <= 0
+      return self
+    endif
+
+    if index(popup_list(), self.winid) >= 0
+      return self
     endif
 
     let self.page_number = 0
