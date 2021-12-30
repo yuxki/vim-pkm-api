@@ -118,7 +118,6 @@ function! pkm#PopupKeyMenu()
   let s:popup_key_menu.ignorecase = 0
   let s:popup_key_menu.next_page_key = 'L'
   let s:popup_key_menu.prev_page_key = 'H'
-  let s:popup_key_menu.active_modes= ['n']
   let s:popup_key_menu.focus = 1
   " Open
   let s:popup_key_menu.options = #{}
@@ -393,9 +392,6 @@ function! pkm#PopupKeyMenu()
 
   " popup_key_menu.Filter--------------------------------------------------------------------------
   function! s:popup_key_menu.Filter(winid, key) dict
-    if index(self.active_modes, mode()) < 0
-      return 0
-    endif
 
     if self.OnKeyPress(a:winid, a:key)
       return 1
