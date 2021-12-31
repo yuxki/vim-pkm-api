@@ -62,10 +62,10 @@ function! s:CallPopupFilter(winid, key)
   return 0
 endfunction
 
-function! s:CallPopupCallback(winid, key)
+function! s:CallPopupCallback(winid, secondarg)
   for [key, value] in items(s:pkm_api_popup_key_menus)
     if value['winid'] == a:winid
-      return s:pkm_api_popup_key_menus[key].OnClose(a:winid, a:key)
+      return s:pkm_api_popup_key_menus[key].OnClose(a:winid, a:secondarg)
     endif
   endfor
   return 0
@@ -490,7 +490,7 @@ function! pkm#PopupKeyMenu()
   endfunction
 
   " popup_key_menu.OnClose-------------------------------------------------------------------------
-  function! s:popup_key_menu.OnClose(winid, key) dict
+  function! s:popup_key_menu.OnClose(winid, secondarg) dict
   endfunction
 
   let s:pkm_api_popup_key_menus[string(s:pkm_api_popup_key_menu_id)] = s:popup_key_menu
