@@ -67,7 +67,7 @@ Note: See |pkm-samples| to get more "plugin like" samples.
  endfunction
 <
 #1 The constructed pkm |dict| is managed by |pkm.pkm_id| key in
-the script variable dict ({ pkm_id : pkm_dict }). `pkm#Exists()` checks if
+the script variable dict ({ pkm_id : pkm_dict }). |pkm#Exists()| checks if
 the pkm_id is exists in the script variable dict, and you can reuse the
 pkm dict.
 
@@ -75,14 +75,14 @@ pkm dict.
 '[key] item' pairs will be displayed with 2 columns, and '[key]' will be
 the keys 'r', 'b', 'y', 'o'.
 
-#3 The |pkm-handlers| can be used by overriding. The `pkm.OnKeySelect()` will be
+#3 The |pkm-handlers| can be used by overriding. The |pkm.OnKeySelect()| will be
 called when the key is selected. In this case, the key 'r' returns 0, and the
 key 'o' returns 3.
 
-#4 The colors and the properties are loaded by the `pkm.Load()`. Now pkm
+#4 The colors and the properties are loaded by the |pkm.Load()|. Now pkm
 popup can be opend.
 
-#5 The `pkm.Open()` calls `popup_create()` with the options argument. See
+#5 The |pkm.Open()| calls |popup_create()| with the options argument. See
 |popup_create-arguments| for details on the options.
 >
  let s:colors = ['red', 'blue', 'yellow', 'orange',
@@ -143,7 +143,6 @@ pkm#PopupKeyMenu()					*pkm#PopupKeyMenu()*
 		the unique "script variable dict" by the pkm_id key.
 		This id is assigned from the unique "script variable number"
 		that is incremented. >
-
 			:call pkm#PopupKeyMenu()
 			:echo pkm#PkmMenus()
 			{'1000': {...}}
@@ -166,7 +165,6 @@ pkm.Load({items})					*pkm.Load()*
 		Load the {items} and some |pkm-props|. {items} is a
 		string list, and a item is displayed next to a assigned key.
 		As a result, the |pkm.pages| is created. >
-
 			:let id = pkm#PopupKeyMenu()
 			:let s:pkm.max_cols_lines = 2
 			:let pkm.keys ='abcd'
@@ -194,7 +192,6 @@ pkm.Load({items})					*pkm.Load()*
 			prev_page_key
 
 		Returns the self dict, so can construct ~ open in a line. >
-
 			:call pkm#PopupKeyMenu().Load(items).Open(options)
 <
 pkm.Open({options})					*pkm.Open()*
@@ -203,7 +200,6 @@ pkm.Open({options})					*pkm.Open()*
 		|popup_create()| options. The filter and the callback, and the
 		close (when the xclose is 1) options are reserved by this
 		method. >
-
 			:call pkm.Open(#{
  				\ padding: [0, 1, 0, 1],
  				\ border: [1, 1, 1, 1],
@@ -216,23 +212,32 @@ pkm.Open({options})					*pkm.Open()*
 				| [d] DDD  |
 				+----------+
 
-		Calls `OnOpen()` handler after a popup opened. If the pkm.pages
-		is empty or the |pkm.winid| is exists in existing popup
-		|window-ID|, does not anything, and returns.
+		Calls |pkm.OnOpen()| handler after a popup opened. If the
+		|pkm.pages| is empty or the |pkm.winid| is exists in existing
+		popup |window-ID|, does not anything, and returns.
 
 		Returns the self dict. And this dict is set window-ID by this
 		method. >
-
 			:let pkm = pkm.Open()
 			:hi MyPkmColor ctermbg=darkgreen guibg=darkgreen
 			:call setwinvar(pkm.winid, '&wincolor', 'MyPkmColor')
 
 pkm.Filter({winid}, {key})				*pkm.Filter()*
 
-		The popup key menu |popup-filter|. Calls the `pkm.OnKeyPress()`
-		and the `pkm.OnKeySelect()` handlers, and turns the page,
-		closes popup when the xclose is 1.
+		The popup key menu's |popup-filter|.
+		This method does the follwing actions in the order.
 
+		1. Calls the |pkm.OnFilter()| handler.
+		2. Closes the popup if the xclose is 1 and the key is 'x'
+		3. Turns the page if the key is matched |pkm.next_page_key| or
+		   |pkm.prev_page_key|.
+		4. Calls the |pkm.OnKeySelect()| handler.if the key is matched
+		   |pkm.keys|.
+
+		Note: See |popup-filter| help for details on the popup-filter
+		behaviors.
+
+		Can be called directory:
 			+-------------------X
 			| [a] AAA [b] BBB   |
 			|        (0) [L] >> |
@@ -245,86 +250,135 @@ pkm.Filter({winid}, {key})				*pkm.Filter()*
 			| << [H] (1)        |
 			+-------------------+
 
-		Note: See |popup-filter| help for details on the popup-filter
-		behaviors.
-
 		By default the filter returns TRUE and discards the key, and
 		let Vim do not handle the key.
 
 		To return FALSE and let Vim handle the key, set pkm.focus 0.
 		It lets the filter return FALSE when the key is not matched
 		the props, |pkm.next_page_key|, |pkm.next_page_key|, |pkm.keys|,
-		'x'(when the |pkm.xclose| is 1).
->
+		'x'(when the |pkm.xclose| is 1). >
 			:let pkm.focus = 0
 <
-		In an other way, return -1 in the `OnKeyPress()` handler.
+		In an other way, return -1 in the |pkm.OnFilter()| handler
+		and specify |filtermode| options for |popup_create()|.
 		It lets the filter return FALSE immediately. The following
-		example enables Vim to accept ':' and to enter Command-line
-		mode, and disable the filter to discard key when Vim is in
-		Command-line mode.
->
-			func! pkm.OnKeyPress(winid, key)
-			  if mode() == 'c'
-			    return -1
-			  endif
-
+		example enables Vim to consume ":" and to enter Command-line
+		mode, and disable the filter to filter the key except in
+		Normal mode: >
+			func! pkm.OnFilter(winid, key)
 			  if a:key == ':'
 			    return -1
 			  endif
-
 			  return 0
 			endfunc
+			call pkm.Open(#{filtermode: 'n'})
+
 
 pkm.Remove()						*pkm.Remove()*
 
-		Description about the function.
+		Removes the self pkm dict from "script variable dict".
 
+		This method does not close the popup. To not left the
+		uncontrolable popup, call this method after closing: >
+			func! pkm.OnClose(winid, key)
+			  self.Remove()
+			endfunc
 
 ------------------------------------------------------------------------------
 HANDLERS						*pkm-handlers*
 
 
-pkm.OnOpen()						*pkm.OnOpen()*
+pkm.OnOpen({winid})					*pkm.OnOpen()*
 
-		Description about the function.
+		Called after opening the pkm popup in the |pkm.Open()|.
+		Example: >
+			func! pkm.OnOpen(winid)
+			  hi MyPkmColor ctermbg=darkgreen guibg=darkgreen
+			  call setwinvar(a:winid, '&wincolor', 'MyPkmColor')
+			endfunc
 
+pkm.OnFilter()					*pkm.OnFilter()*
 
-pkm.OnKeyPress()					*pkm.OnKeyPress()*
+		Called immediately after the |pkm.Filter()| invoked.
+		Return value affects the |pkm.Filter()| behavior:
 
-		Description about the function.
+			 0 : Does not return immediately from the filter.
+			     The return value is depend on |pkm.focus|.
+			 1 : Returns immediately from the filter with TRUE.
+			-1 : Returns immediately from the filter with FALSE.
 
+		Examples:
+			To hide the popup: >
+			func! pkm.OnFilter(winid, key)
+			  if a:key ==# 'H'
+			    call popup_hide(a:winid)
+			    return 1
+			  endif
+			  return 0
+			endfunc
+<
+			To enter Command-line mode and Visual mode: >
+			func! pkm.OnFilter(winid, key)
+			  if index([':', 'v'], a:key) >= 0
+			    return -1
+			  endif
+			  return 0
+			endfunc
 
-pkm.OnKeySelect()					*pkm.OnKeySelect()*
+pkm.OnKeySelect({winid}, {index})			*pkm.OnKeySelect()*
 
-		Description about the function.
+		Called if the key is in the |pkm.keys| in |pkm.Filter()|. Returns
+		from |pkm.Filter()| TRUE and the key is consumed by the filter.
 
+		{index} is passed besed on lenght of items loaded by the
+		|pkm.Load()|:
+			+-------------------+  +-------------------+
+			| [a] AAA [b] BBB   |  | [a] CCC [b] DDD   |
+			|        (0) [L] >> |  | << [H] (1)        |
+			+-------------------+  +-------------------+
+			 key [a]: {index} 0	key [a]: {index} 2
+			 key [b]: {index} 1	key [b]: {index} 3
 
-pkm.OnClose()						*pkm.OnClose()*
+		Example: >
+			func! pkm.OnKeySelect(winid, index)
+			  execute my_awesome_commands[a:index]
+			  call popup_close(a:winid)
+			endfunc
 
-		Description about the function.
+<
+pkm.OnClose({winid}, {secondarg})				*pkm.OnClose()*
+
+		Called after the pkm popup is closed. Actually, this handler
+		is called by |popup-callback| and passed the same arguments,
+		so that {secondarg} is the second argument of |popup_close()|.
+
+		Example: >
+			func! pkm.OnClose(winid, secondarg)
+			  self.Remove()
+			endfunc
+
 ------------------------------------------------------------------------------
 PROPS							*pkm-props*
-	pkm.winid
-	pkm.pkm_id
-	pkm.pages
-	pkm.keys
-	pkm.max_cols_lines
-	pkm.col_border
-	pkm.align
-	pkm.col_width
-	pkm.fix_width
-	pkm.fix_height
-	pkm.vertical
-	pkm.xclose
-	pkm.page_guide
-	pkm.ignorecase
-	pkm.next_page_key
-	pkm.prev_page_key
-	pkm.key_guide
-	pkm.page_guides
-	pkm.active_modes
-	pkm.focus
+	winid
+	pkm_id
+	pages
+	keys
+	max_cols_lines
+	col_border
+	align
+	col_width
+	fix_width
+	fix_height
+	vertical
+	xclose
+	page_guide
+	ignorecase
+	next_page_key
+	prev_page_key
+	key_guide
+	page_guides
+	active_modes
+	focus
 ------------------------------------------------------------------------------
 PROP DETAILS						*pkm-prop-details*
 
