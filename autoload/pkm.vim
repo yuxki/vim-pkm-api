@@ -393,8 +393,11 @@ function! pkm#PopupKeyMenu()
   " popup_key_menu.Filter--------------------------------------------------------------------------
   function! s:popup_key_menu.Filter(winid, key) dict
 
-    if self.OnKeyPress(a:winid, a:key)
+    let s:okp_ret = self.OnKeyPress(a:winid, a:key)
+    if s:okp_ret >= 1
       return 1
+    elseif s:okp_ret < 0
+      return 0
     endif
 
     if self.xclose
