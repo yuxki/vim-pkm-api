@@ -30,12 +30,12 @@ oriented popup menu. See |popup.txt| for details on popup.
 
 ==============================================================================
 2. Usage						*pkm-usage*
->
+
  +------------------------X
  | [r] red    [b] blue    |
  | [y] yellow [o] orange  |
  +------------------------+
-<
+
 This sample program open the above popup menu that prints color name
 according to the the key. The key 'x' closes the popup. Set 0 to the
 |pkm.xclose| to disable this util.
@@ -93,7 +93,7 @@ If you load a List has items more than |pkm.key| length, items separated by
 pages. On the default behavior, the key 'l' transits to next page, and the
 key 'h' does the opposite of that. The page guide can be customized by
 the |pkm.page_guides| property.
->
+
  +------------------------------------X
  | [r] red          [b] blue          |
  | [y] yellow       [o] orange        |
@@ -111,7 +111,7 @@ the |pkm.page_guides| property.
  | [y] light-yellow [o] light-orange  |
  |         << [H] (2)                 |
  +------------------------------------+
-<
+
 ==============================================================================
 3. Install						*pkm-install*
 
@@ -142,9 +142,9 @@ pkm#PopupKeyMenu()					*pkm#PopupKeyMenu()*
 		Constuct and register the pkm dict into
 		the unique "script variable dict" by the pkm_id key.
 		This id is assigned from the unique "script variable number"
-		that is incremented: >
+		that is incremented. >
 
- 			:call pkm#PopupKeyMenu()
+			:call pkm#PopupKeyMenu()
 			:echo pkm#PkmMenus()
 			{'1000': {...}}
 
@@ -154,23 +154,23 @@ pkm#PopupKeyMenu()					*pkm#PopupKeyMenu()*
 <
 
 		Returns the constructed dict, which has |pkm.pkm_id|, it can
-		be used to get or check existing the pkm dict: >
- 			:let pkm_id = ''
- 			:if !pkm#Exists(pkm_id)
- 			:  let pkm = pkm#PopupKeyMenu()
- 			:  let pkm_id = pkm.pkm_id
+		be used to get or check existing the pkm dict. >
+			:let pkm_id = ''
+			:if !pkm#Exists(pkm_id)
+			:  let pkm = pkm#PopupKeyMenu()
+			:  let pkm_id = pkm.pkm_id
 			:endif
 
 pkm.Load({items})					*pkm.Load()*
 
 		Load the {items} and some |pkm-props|. {items} is a
 		string list, and a item is displayed next to a assigned key.
-		As a result, the |pkm.pages| is created: >
+		As a result, the |pkm.pages| is created. >
 
 			:let id = pkm#PopupKeyMenu()
- 			:let s:pkm.max_cols_lines = 2
- 			:let pkm.keys ='abcd'
- 			:call pkm.Load(items)
+			:let s:pkm.max_cols_lines = 2
+			:let pkm.keys ='abcd'
+			:call pkm.Load(items)
 			:echo pkm#PkmMenus()[id].pages
 			[['[a] AAA [b] BBB ', '[c] CCC [d] DDD ']]
 <
@@ -193,19 +193,88 @@ pkm.Load({items})					*pkm.Load()*
 			next_page_key
 			prev_page_key
 
-		Returns self dict, so can construct ~ open in a line: >
+		Returns the self dict, so can construct ~ open in a line. >
+
 			:call pkm#PopupKeyMenu().Load(items).Open(options)
 <
 pkm.Open({options})					*pkm.Open()*
 
-		Open .
+		Create and open a pkm popup. {options} argument is
+		|popup_create()| options. The filter and the callback, and the
+		close (when the xclose is 1) options are reserved by this
+		method. >
 
+			:call pkm.Open(#{
+ 				\ padding: [0, 1, 0, 1],
+ 				\ border: [1, 1, 1, 1],
+ 				\ })
+<
+				+----------X
+				| [a] AAA  |
+				| [b] BBB  |
+				| [c] CCC  |
+				| [d] DDD  |
+				+----------+
 
+		Calls `OnOpen()` handler after a popup opened. If the pkm.pages
+		is empty or the |pkm.winid| is exists in existing popup
+		|window-ID|, does not anything, and returns.
+
+		Returns the self dict. And this dict is set window-ID by this
+		method. >
+
+			:let pkm = pkm.Open()
+			:hi MyPkmColor ctermbg=darkgreen guibg=darkgreen
+			:call setwinvar(pkm.winid, '&wincolor', 'MyPkmColor')
 
 pkm.Filter({winid}, {key})				*pkm.Filter()*
 
-		Description about the function.
+		The popup key menu |popup-filter|. Calls the `pkm.OnKeyPress()`
+		and the `pkm.OnKeySelect()` handlers, and turns the page,
+		closes popup when the xclose is 1.
 
+			+-------------------X
+			| [a] AAA [b] BBB   |
+			|        (0) [L] >> |
+			+-------------------+
+>
+			:call pkm.Filter(pkm.winid, 'L')
+<
+			+-------------------X
+			| [a] CCC [b] DDD   |
+			| << [H] (1)        |
+			+-------------------+
+
+		Note: See |popup-filter| help for details on the popup-filter
+		behaviors.
+
+		By default the filter returns TRUE and discards the key, and
+		let Vim do not handle the key.
+
+		To return FALSE and let Vim handle the key, set pkm.focus 0.
+		It lets the filter return FALSE when the key is not matched
+		the props, |pkm.next_page_key|, |pkm.next_page_key|, |pkm.keys|,
+		'x'(when the |pkm.xclose| is 1).
+>
+			:let pkm.focus = 0
+<
+		In an other way, return -1 in the `OnKeyPress()` handler.
+		It lets the filter return FALSE immediately. The following
+		example enables Vim to accept ':' and to enter Command-line
+		mode, and disable the filter to discard key when Vim is in
+		Command-line mode.
+>
+			func! pkm.OnKeyPress(winid, key)
+			  if mode() == 'c'
+			    return -1
+			  endif
+
+			  if a:key == ':'
+			    return -1
+			  endif
+
+			  return 0
+			endfunc
 
 pkm.Remove()						*pkm.Remove()*
 
