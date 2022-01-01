@@ -268,6 +268,7 @@ function! pkm#PopupKeyMenu()
     for l in a:col_lens
       let s:guide_width += l + len(self.col_border)
     endfor
+    let s:guide_width -= len(self.col_border) " sub last column length
 
     let s:page_number = 0
     for page in a:w_pages
@@ -308,10 +309,11 @@ function! pkm#PopupKeyMenu()
         let s:line = ''
         let s:col_nr = 0
         for w in cols
+          let s:border = s:col_nr < (len(cols) - 1) ? self.col_border : ''
           if self.align
-            let s:line = s:line.w.s:DiffSpace(a:col_lens[s:col_nr], len(w)).self.col_border
+            let s:line = s:line.w.s:DiffSpace(a:col_lens[s:col_nr], len(w)).s:border
           else
-            let s:line = s:line.w.self.col_border
+            let s:line = s:line.w.s:border
           endif
           let s:col_nr += 1
         endfor
