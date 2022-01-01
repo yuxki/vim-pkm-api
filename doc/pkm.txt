@@ -136,7 +136,6 @@ like the following.
 ------------------------------------------------------------------------------
 POPUP KEY MENU						*pkm-popup-key-menu*
 
-
 pkm#PopupKeyMenu()					*pkm#PopupKeyMenu()*
 
 		Constuct and register the pkm dict into
@@ -163,8 +162,8 @@ pkm#PopupKeyMenu()					*pkm#PopupKeyMenu()*
 pkm.Load({items})					*pkm.Load()*
 
 		Load the {items} and some |pkm-props|. {items} is a
-		string list, and a item is displayed next to a assigned key.
-		As a result, the |pkm.pages| is created. >
+		string list, and a item is displayed next to a the mapped
+		key. As a result, the |pkm.pages| is created. >
 			:let id = pkm#PopupKeyMenu()
 			:let s:pkm.max_cols_lines = 2
 			:let pkm.keys ='abcd'
@@ -287,7 +286,6 @@ pkm.Remove()						*pkm.Remove()*
 ------------------------------------------------------------------------------
 HANDLERS						*pkm-handlers*
 
-
 pkm.OnOpen({winid})					*pkm.OnOpen()*
 
 		Called after opening the pkm popup in the |pkm.Open()|.
@@ -359,26 +357,34 @@ pkm.OnClose({winid}, {secondarg})				*pkm.OnClose()*
 
 ------------------------------------------------------------------------------
 PROPS							*pkm-props*
-	winid
-	pkm_id
-	pages
-	keys
-	max_cols_lines
-	col_border
-	align
-	col_width
-	fix_width
-	fix_height
-	vertical
-	xclose
-	page_guide
-	ignorecase
-	next_page_key
-	prev_page_key
-	key_guide
-	page_guides
-	active_modes
-	focus
+
+	winid		The |window-ID| assigned to the pkm popup.
+	pkm_id		Links the pkm dict to the |popup-filter| and the
+			|popup-callback|.
+	pages		Lines displayed on the popup.
+	keys		The keys that will be mapped to the items and matched
+			the key in the |pkm.Filter()|.
+	max_cols_lines	When pkm.vertical is 0, turns to next line at this
+			value. When pkm.vertical is 1, truns to next colmun.
+	col_border	Separates a next column item.
+	align		Toggles aligning displayed items or not.
+	vertical	Toggles vertical aligning the displayed keys or not.
+	col_width	Controls each column width.
+	fix_width	Toggles fixing width of the popup window or not.
+	fix_height	Toggles fixing height of the popup window or not.
+	add_page_guide	Toggles adding the page guide to pkm.pages or not.
+	key_guide	Formats the displayed key next to a item.
+	page_guides	Formats the page guides.
+	xclose		Toggles mapping the 'x' key to the key that closes
+			the pkm popup, or not.
+	next_page_key	The key that matched the key and moves to a next page.
+	prev_page_key	The key that matched the key and moves to a previous
+			page.
+	ignorecase	Toggles ignoring the case of the key when
+			|pkm.OnKeySelect()| is called, or not.
+	focus		Toggles discarding the key which not matched any where,
+			or not.
+
 ------------------------------------------------------------------------------
 PROP DETAILS						*pkm-prop-details*
 
