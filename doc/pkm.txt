@@ -178,7 +178,7 @@ pkm.Load({items})					*pkm.Load()*
 			keys
 			max_cols_lines
 			col_border
-			page_guide
+			add_page_guide
 			align
 			col_width
 			fix_width
@@ -306,7 +306,7 @@ pkm.OnFilter()					*pkm.OnFilter()*
 			-1 : Returns immediately from the filter with FALSE.
 
 		Examples:
-			To hide the popup: >
+			- To hide the popup: >
 			func! pkm.OnFilter(winid, key)
 			  if a:key ==# 'H'
 			    call popup_hide(a:winid)
@@ -315,7 +315,7 @@ pkm.OnFilter()					*pkm.OnFilter()*
 			  return 0
 			endfunc
 <
-			To enter Command-line mode and Visual mode: >
+			- To enter Command-line mode and Visual mode: >
 			func! pkm.OnFilter(winid, key)
 			  if index([':', 'v'], a:key) >= 0
 			    return -1
@@ -328,7 +328,7 @@ pkm.OnKeySelect({winid}, {index})			*pkm.OnKeySelect()*
 		Called if the key is in the |pkm.keys| in |pkm.Filter()|. Returns
 		from |pkm.Filter()| TRUE and the key is consumed by the filter.
 
-		{index} is passed besed on lenght of items loaded by the
+		{index} is passed besed on length of items loaded by the
 		|pkm.Load()|:
 			+-------------------+  +-------------------+
 			| [a] AAA [b] BBB   |  | [a] CCC [b] DDD   |
@@ -352,23 +352,34 @@ pkm.OnClose({winid}, {secondarg})				*pkm.OnClose()*
 
 		Example: >
 			func! pkm.OnClose(winid, secondarg)
-			  self.Remove()
+			  let self.winid = -1 " mark the closed popup dict
 			endfunc
 
 ------------------------------------------------------------------------------
 PROPS							*pkm-props*
+	pkm.winid
+	pkm.pkm_id
+	pkm.pages
+	pkm.keys
+	pkm.max_cols_lines
+	pkm.col_border
+	pkm.align
+	pkm.vertical
+	pkm.col_width
+	pkm.fix_width
+	pkm.fix_height
+	pkm.add_page_guide
+	pkm.key_guide
+	pkm.page_guides
+	pkm.xclose
+	pkm.next_page_key
+	pkm.prev_page_key
+	pkm.ignorecase
+	pkm.focus
 
-	winid		The |window-ID| assigned to the pkm popup.
-	pkm_id		Links the pkm dict to the |popup-filter| and the
-			|popup-callback|.
-	pages		Lines displayed on the popup.
-	keys		The keys that will be mapped to the items and matched
-			the key in the |pkm.Filter()|.
-	max_cols_lines	When pkm.vertical is 0, turns to next line at this
-			value. When pkm.vertical is 1, truns to next colmun.
 	col_border	Separates a next column item.
-	align		Toggles aligning displayed items or not.
-	vertical	Toggles vertical aligning the displayed keys or not.
+	align		TRUE to align displayed items.
+	vertical	TRUE to vertical align the displayed keys.
 	col_width	Controls each column width.
 	fix_width	Toggles fixing width of the popup window or not.
 	fix_height	Toggles fixing height of the popup window or not.
@@ -390,26 +401,87 @@ PROP DETAILS						*pkm-prop-details*
 
 pkm.winid						*pkm.winid*
 
-		Write
+		The |window-ID| assigned to the pkm popup.
+		This id is set after |pkm.OnOpen()| created the popup. Before
+		that, this id is -1.
+		Following example hides and shows the pkm popup with the
+		pkm.winid: >
+			func! HideMyPkm()
+			  call popup_hide(pkm.winid)
+			endfunc
+
+			func! ShowMyPkm()
+			  call popup_show(pkm.winid)
+			endfunc
+<
 pkm.pkm_id						*pkm.pkm_id*
 
-		Write
+		The number links the pkm dict to the |popup-filter| and the
+		|popup-callback| via the winid.
+		See |pkm#PopupKeyMenu()| for example of this props.
 
 pkm.pages						*pkm.pages*
 
-		Write
+		Line list displayed on the popup.
+		See |pkm.Load()| for example of this props.
 
 pkm.keys						*pkm.keys*
 
-		Default: 'abcdefimnopqrstuvwyz'
+		Serial lowercase and uppercase letters numbers string that
+		will be mapped to the items and matched the key in the
+		|pkm.Filter()|.
+
+		When value is "aB34" and items is ["AAA", "BBB", "CCC",
+		"DDD"], the following popup is created.
+		Example:
+			[a] AAA
+			[B] BBB
+			[3] CCC
+			[4] DDD
+
+		If items that is loaded by |pkm.Load()| is more than
+		pkm.keys, pkm.pages will be multile pages.
+		Example:
+			[a] AAA  [a] EEE
+			[B] BBB  [B] FFF
+			[3] CCC
+			[4] DDD
+			-------  -------
+			page: 0  page: 1
+
+		Default: "abcdefimnopqrstuvwyz"
 
 pkm.max_cols_lines					*pkm.max_cols_lines*
+
+		Maximum number a pair of the key guide and a item turns at.
+		When |pkm.vertical| is 0, turns to next line, when
+		pkm.vertical is 1, truns to next colmun.
+		Examples:
+			- pkm.max_cols_lines is 3, and pkm.vertical is 0:
+			  [a] AAA [b] BBB [c] CCC
+			  [d] DDD [e] EEE
+
+			  3 colmuns and 2 lines
+
+			- pkm.max_cols_lines is 3, and pkm.vertical is 1:
+			  [a] AAA [d] DDD
+			  [b] BBB [e] EEE
+			  [c] CCC
+
+			  2 colmuns and 3 lines
 
 		Default: 1
 
 pkm.col_border						*pkm.col_border*
 
-		Default: ' '
+		String separates between columns. When items are aligned
+		by a line, this prop does not work.
+
+		Examples:
+			- pkm.col_border is " | " and 3 colmns:
+			[r] AAA | [b] BBB | [y] CCC
+
+		Default: " "
 
 pkm.align						*pkm.align*
 
@@ -417,7 +489,7 @@ pkm.align						*pkm.align*
 
 pkm.col_width						*pkm.col_width*
 
-		Default: 'auto'
+		Default: "auto"
 
 pkm.fix_width						*pkm.fix_width*
 
@@ -445,28 +517,28 @@ pkm.ignorecase						*pkm.ignorecase*
 
 pkm.next_page_key					*pkm.next_page_key*
 
-		Default: 'L'
+		Default: "L"
 
 pkm.prev_page_key					*pkm.prev_page_key*
 
-		Default: 'H'
+		Default: "H"
 
 pkm.key_guide						*pkm.key_guide*
 
-		Default: '[%k] '
+		Default: "[%k] "
 
 pkm.page_guides						*pkm.page_guides*
 
 		Default: [
-		\ '       (%p) [%n] >>',
-		\ '<< [%v] (%p) [%n] >>',
-		\ '<< [%v] (%p)       ',
+		\ "       (%p) [%n] >>",
+		\ "<< [%v] (%p) [%n] >>",
+		\ "<< [%v] (%p)       ",
 		\ ]
 
 
 pkm.active_modes					*pkm.active_modes*
 
-		Default: ['n']
+		Default: ["n"]
 
 pkm.focus						*pkm.focus*
 
