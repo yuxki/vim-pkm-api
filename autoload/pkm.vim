@@ -100,7 +100,7 @@ function! pkm#PopupKeyMenu()
   let s:popup_key_menu.pages = []
   let s:popup_key_menu.keys ='abcdefimnopqrstuvwyz'
   let s:popup_key_menu.max_cols_lines = 1
-  let s:popup_key_menu.col_border = ' '
+  let s:popup_key_menu.item_border = ' '
   let s:popup_key_menu.add_page_guide = 1
   let s:popup_key_menu.align = 1
   let s:popup_key_menu.col_width = 'auto' " 'auto', 'max', number, numbers list
@@ -266,9 +266,9 @@ function! pkm#PopupKeyMenu()
 
     let s:guide_width = 0
     for l in a:col_lens
-      let s:guide_width += l + len(self.col_border)
+      let s:guide_width += l + len(self.item_border)
     endfor
-    let s:guide_width -= len(self.col_border) " sub last column length
+    let s:guide_width -= len(self.item_border) " sub last column length
 
     let s:page_number = 0
     for page in a:w_pages
@@ -309,11 +309,14 @@ function! pkm#PopupKeyMenu()
         let s:line = ''
         let s:col_nr = 0
         for w in cols
-          let s:border = s:col_nr < (len(cols) - 1) ? self.col_border : ''
+          let s:border = s:col_nr > 0 ?
+                  \ len(w) > 0 ?
+                  \ self.item_border : s:DiffSpace(self.item_border, 0)
+                \ : ''
           if self.align
-            let s:line = s:line.w.s:DiffSpace(a:col_lens[s:col_nr], len(w)).s:border
+            let s:line = s:line.s:border.w.s:DiffSpace(a:col_lens[s:col_nr], len(w))
           else
-            let s:line = s:line.w.s:border
+            let s:line = s:line.s:border.w
           endif
           let s:col_nr += 1
         endfor
