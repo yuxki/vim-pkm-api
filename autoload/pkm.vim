@@ -101,7 +101,7 @@ function! pkm#PopupKeyMenu()
   let s:popup_key_menu.keys ='abcdefimnopqrstuvwyz'
   let s:popup_key_menu.max_cols_lines = 1
   let s:popup_key_menu.col_border = ' '
-  let s:popup_key_menu.page_guide = 1
+  let s:popup_key_menu.add_page_guide = 1
   let s:popup_key_menu.align = 1
   let s:popup_key_menu.col_width = 'auto' " 'auto', 'max', number, numbers list
   let s:popup_key_menu.fix_width = 0
@@ -260,7 +260,7 @@ function! pkm#PopupKeyMenu()
   function! s:popup_key_menu.__PageGuides(w_pages, col_lens) dict
     let s:guides = []
 
-    if len(a:w_pages) < 2
+    if len(a:w_pages) < 2 || !self.add_page_guide
       return s:guides
     endif
 
