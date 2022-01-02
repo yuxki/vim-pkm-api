@@ -14,12 +14,12 @@ CONTENTS 						*pkm-contents*
 2. Usage		|pkm-usage|
 3. Install		|pkm-install|
 4. Interface		|pkm-interface|
-   API Content		|pkm-api-content|
-   Popup Key Menu	|pkm-popup-key-menu|
+   API Contents		|pkm-api-contents|
+   Constructor 		|pkm-constructor|
+   Methods 		|pkm-methods|
    Handlers		|pkm-handlers|
    Props		|pkm-props|
-   Other Functions	|pkm-other-functions|
-   Variables		|pkm-variables|
+   Utils 		|pkm-utils|
 5. Samples		|pkm-samples|
 
 ==============================================================================
@@ -134,39 +134,48 @@ like the following.
 4. Interface						*pkm-interface*
 
 ------------------------------------------------------------------------------
-API CONTENT						*pkm-api-content*
+API CONTENTS						*pkm-api-contents*
 
-	|pkm#PopupKeyMenu()|
-	|pkm.Load()|
-	|pkm.Open()|
-	|pkm.Filter()|
-	|pkm.Remove()|
-	|pkm.OnOpen()|
-	|pkm.OnFilter()|
-	|pkm.OnKeySelect()|
-	|pkm.OnClose()|
-	|pkm.winid|
-	|pkm.pkm_id|
-	|pkm.pages|
-	|pkm.keys|
-	|pkm.max_cols_lines|
-	|pkm.item_border|
-	|pkm.align|
-	|pkm.vertical|
-	|pkm.col_width|
-	|pkm.fix_cols|
-	|pkm.fix_lines|
-	|pkm.add_page_guide|
-	|pkm.key_guide|
-	|pkm.page_guides|
-	|pkm.xclose|
-	|pkm.next_page_key|
-	|pkm.prev_page_key|
-	|pkm.ignorecase|
-	|pkm.focus|
+	|pkm-constructor|
+	  |pkm#PopupKeyMenu()|
+	|pkm-methods|
+	  |pkm.Load()|
+	  |pkm.Open()|
+	  |pkm.Filter()|
+	  |pkm.Remove()|
+	|pkm-handlers|
+	  |pkm.OnOpen()|
+	  |pkm.OnFilter()|
+	  |pkm.OnKeySelect()|
+	  |pkm.OnClose()|
+	|pkm-props|
+	  |pkm.winid|
+	  |pkm.pkm_id|
+	  |pkm.pages|
+	  |pkm.keys|
+	  |pkm.max_cols_lines|
+	  |pkm.item_border|
+	  |pkm.align|
+	  |pkm.vertical|
+	  |pkm.col_width|
+	  |pkm.fix_cols|
+	  |pkm.fix_lines|
+	  |pkm.add_page_guide|
+	  |pkm.key_guide|
+	  |pkm.page_guides|
+	  |pkm.xclose|
+	  |pkm.next_page_key|
+	  |pkm.prev_page_key|
+	  |pkm.ignorecase|
+	  |pkm.focus|
+	|pkm-utils|
+	  |pkm#GetPkmMenus()|
+	  |pkm#GetNextId()|
+	  |pkm#Clear()|
+	  |pkm#Exists()|
 
 ------------------------------------------------------------------------------
-POPUP KEY MENU						*pkm-popup-key-menu*
+CONSTRUCTOR						*pkm-constructor*
 
 pkm#PopupKeyMenu()					*pkm#PopupKeyMenu()*
 
@@ -191,6 +200,9 @@ pkm#PopupKeyMenu()					*pkm#PopupKeyMenu()*
 			:  let pkm_id = pkm.pkm_id
 			:endif
 
+------------------------------------------------------------------------------
+METHODS							*pkm-methods*
+
 pkm.Load({items})					*pkm.Load()*
 
 		Load the {items} and some |pkm-props|. {items} is a
@@ -206,7 +218,6 @@ pkm.Load({items})					*pkm.Load()*
 		If items or loaded props are changed, you need reload
 		with calling this method again.
 		Loaded props are following:
-
 			keys
 			max_cols_lines
 			item_border
@@ -663,7 +674,6 @@ pkm.page_guides						*pkm.page_guides*
 		\ "<< [%v] (%p)       ",
 		\ ]
 
-
 pkm.focus						*pkm.focus*
 
 		When FALSE, |pkm.Filter()| will return FALSE when the key is
@@ -678,11 +688,11 @@ pkm.focus						*pkm.focus*
 		Default: TRUE
 
 ------------------------------------------------------------------------------
-OTHER FUNCTIONS						*pkm-other-functions*
+UTILS							*pkm-utils*
 
 pkm#GetPkmMenus()					*pkm#GetPkmMenus()*
 
-		Description about the function.
+		Gets the pkm dicts.
 
 pkm#GetNextId()						*pkm#GetNextId()*
 
@@ -696,19 +706,6 @@ pkm#Exists({pkmid})					*pkm#Exists()*
 
 		Description about the function.
 
-------------------------------------------------------------------------------
-VARIABLES						*pkm-variables*
-
-						  *s:pkm_api_popup_key_menus*
-s:pkm_api_popup_key_menus
-
-		Description about the variable.
-
-
-						*s:pkm_api_popup_key_menu_id*
-s:pkm_api_popup_key_menu_id
-
-		Description about the variable.
 ==============================================================================
 SAMPLES							*pkm-samples*
 
