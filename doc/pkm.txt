@@ -133,6 +133,35 @@ like the following.
 ==============================================================================
 4. Interface						*pkm-interface*
 
+	pkm#PopupKeyMenu()
+	pkm.Load()
+	pkm.Open()
+	pkm.Filter()
+	pkm.Remove()
+	pkm.OnOpen()
+	pkm.OnFilter()
+	pkm.OnKeySelect()
+	pkm.OnClose()
+	pkm.winid
+	pkm.pkm_id
+	pkm.pages
+	pkm.keys
+	pkm.max_cols_lines
+	pkm.item_border
+	pkm.align
+	pkm.vertical
+	pkm.col_width
+	pkm.fix_cols
+	pkm.fix_lines
+	pkm.add_page_guide
+	pkm.key_guide
+	pkm.page_guides
+	pkm.xclose
+	pkm.next_page_key
+	pkm.prev_page_key
+	pkm.ignorecase
+	pkm.focus
+
 ------------------------------------------------------------------------------
 POPUP KEY MENU						*pkm-popup-key-menu*
 
@@ -295,7 +324,7 @@ pkm.OnOpen({winid})					*pkm.OnOpen()*
 			  call setwinvar(a:winid, '&wincolor', 'MyPkmColor')
 			endfunc
 
-pkm.OnFilter()					*pkm.OnFilter()*
+pkm.OnFilter()						*pkm.OnFilter()*
 
 		Called immediately after the |pkm.Filter()| invoked.
 		Return value affects the |pkm.Filter()| behavior:
@@ -385,8 +414,9 @@ pkm.winid						*pkm.winid*
 		The |window-ID| assigned to the pkm popup.
 		This id is set after |pkm.OnOpen()| created the popup. Before
 		that, this id is -1.
-		Following example hides and shows the pkm popup with the
-		pkm.winid: >
+
+		Following example defines the function hiding and the
+		function showing the pkm popup with the pkm.winid: >
 			func! HideMyPkm()
 			  call popup_hide(pkm.winid)
 			endfunc
@@ -399,17 +429,17 @@ pkm.pkm_id						*pkm.pkm_id*
 
 		The number links the pkm dict to the |popup-filter| and the
 		|popup-callback| via the winid.
-		See |pkm#PopupKeyMenu()| for example of this props.
+		See |pkm#PopupKeyMenu()| for the example of this prop usage.
 
 pkm.pages						*pkm.pages*
 
 		Line list displayed on the popup.
-		See |pkm.Load()| for example of this props.
+		See |pkm.Load()| for the example of value of this prop.
 
 pkm.keys						*pkm.keys*
 
-		Serial lowercase and uppercase letters numbers string that
-		will be mapped to the items and matched the key in the
+		Serial lowercase and uppercase letters, and numbers string
+		that will be mapped to the items and matched the key in the
 		|pkm.Filter()|.
 
 		When value is "aB34" and items is ["AAA", "BBB", "CCC",
@@ -421,7 +451,8 @@ pkm.keys						*pkm.keys*
 			[4] DDD
 
 		If items that is loaded by |pkm.Load()| is more than
-		pkm.keys, pkm.pages will be multile pages.
+		pkm.keys, pkm.pages will be multile pages start the same
+		keys.
 		Example:
 			[a] AAA  [a] EEE
 			[B] BBB  [B] FFF
@@ -434,10 +465,10 @@ pkm.keys						*pkm.keys*
 
 pkm.max_cols_lines					*pkm.max_cols_lines*
 
-		Maximum number a pair of the key guide and a item returns
-		at. When |pkm.vertical| is 0, returns to next line, when
-		pkm.vertical is 1, truns to next item colmun.
-		Examples:
+		Maximum number of a the item colmuns or the lines in the page.
+		When the |pkm.vertical| is 0, this prop controls the number of
+		colmuns. When pkm.vertical is 1, this prop controls the number
+		of lines.
 			- pkm.max_cols_lines is 3, pkm.vertical is FALSE:
 			  [a] AAA [b] BBB [c] CCC
 			  [d] DDD [e] EEE
@@ -455,17 +486,16 @@ pkm.max_cols_lines					*pkm.max_cols_lines*
 
 pkm.vertical						*pkm.vertical*
 
-		When TRUE, items are alinged vertically. When FALSE,
-		horizontally (the default).
+		When TRUE, items are alinged vertically.
+		When FALSE, items are alinged horizontally (the default).
 
-		See |pkm.max_cols_lines| for aligning example.
+		See |pkm.max_cols_lines| for the example of aligning.
 
 		Default: FALSE
 
 pkm.item_border						*pkm.item_border*
 
-		String separates between columns. When items are aligned
-		by a line, this prop does not work.
+		String separates between columns.
 
 		Examples:
 			- pkm.item_border is " | " and 5 items, 3 colmns:
@@ -477,12 +507,12 @@ pkm.item_border						*pkm.item_border*
 pkm.align						*pkm.align*
 
 		When TRUE (the default):
-		 - The following props are enabled:
+		 - The following props will be enabled:
 		   - pkm.col_width (default "auto")
 		   - pkm.fix_cols (default FALSE)
 		   - pkm.fix_lines (default FALSE)
 
-		   Only the pkm.col_width will be always on, it will be
+		   Only the pkm.col_width will be always on, it can be
 		   chosen how to adjust item colmun width.
 		   Examples:
 			- When the pkm.col_width is "auto":
@@ -493,7 +523,7 @@ pkm.align						*pkm.align*
 			  page 1: [a] This [b] is the pkm.align [c] example
 			  page 0: [a] c1 [b] c2 [c] c3
 
-		 - The page guide is aligned center.
+		 - The page guide will be aligned center.
 		   Example:
 			[a] This [b] is the pkm.align [c] example
 			            << [H] (2) [L] >>
@@ -506,27 +536,28 @@ pkm.align						*pkm.align*
 
 pkm.col_width						*pkm.col_width*
 
-		How to adjust width of item colmun.Can use "auto" or "max",
+		How to adjust width of item colmun. Can use "auto" or "max",
 		number, number list:
-		 - "auto"
-		   Each width of item colum will be adjusted longest item
-		   of self colmun in all pages:
+		 - When "auto",
+		   each width of the colum will be adjusted to longest item
+		   of the self colmun for the all pages:
 		 	page 1: [a] This is [b] a  [c] example
 		 	page 0: [a] c1	    [b] c2 [c] c3
 
-		 - "max"
-		    Width of item colums will be adjusted longest width
-		    of all items:
+		 - When "max",
+		   width of the colum will be adjusted to longest width
+		   of all items:
 		 	page 1: [a] This is [b] a       [c] example
 		 	page 0: [a] c1	    [b] c2      [c] c3
 
-		 - number
-		   Width of item colum will be adjusted to this number.
+		 - When number,
+		   width of the colum will be adjusted to this number.
 		 	- A case of 8:
 		 	  [a] A    [b] B    [c] C
 		 	  -------- -------- --------
 		 	         8        8        8
-		   When there is a items which width is more than this number,
+
+		   When there is a item which width is more than this number,
 		   only the column that items is positioned works like "auto".
 		 	- A case of 8:
 		 	  page 0: [a] A    [b] B       [c] C
@@ -536,12 +567,13 @@ pkm.col_width						*pkm.col_width*
 		 	          -------- ----------- --------
 		 	                 8          11        8
 
-		 - number list
-		   Width of item colum will be adjusted to this number list.
+		 - When number list,
+		   width of the colum will be adjusted to this number list.
 		 	- A case of [4, 8, 16]:
 		 	  [a] A [b] B    [c] C
 		 	  ----- -------- ----------------
 		 	      4        8               16
+
 		   The other behavior is same as "number".
 
 		To enable this prop, |pkm.align| needs to be TRUE.
@@ -550,7 +582,7 @@ pkm.col_width						*pkm.col_width*
 
 pkm.fix_cols						*pkm.fix_cols*
 
-		TRUE to fix the number of item colmns in all pages.
+		TRUE to fix the number of item columns in the all pages.
 		Example:
 			page 0: [a] A [b] B [c] C
 			        ----- ----- -----
@@ -561,7 +593,7 @@ pkm.fix_cols						*pkm.fix_cols*
 
 pkm.fix_lines						*pkm.fix_lines*
 
-		TRUE to fix the number of lines in all pages.
+		TRUE to fix the number of lines in the all pages.
 		Example:
 			page 0: [a] A [b] B
 				[c] C [d] D
@@ -577,23 +609,22 @@ pkm.fix_lines						*pkm.fix_lines*
 
 pkm.xclose						*pkm.xclose*
 
-		TRUE to map the key 'x' to the key closes the pkm popup.
-		After the popup is closed, the |pkm.Filter()| return with
-		TRUE.
+		TRUE to map the key 'x' to the key that closes the pkm
+		popup. After the popup is closed, the |pkm.Filter()|
+		return with TRUE.
 
 		Default: TRUE
 
 pkm.page_guide						*pkm.page_guide*
 
-		TRUE to add the page guide into |pkm.pages| in |pkm.Load()|
-		when multiple pages.
+		When TRUE and multiple pages, the page guide will be
+		added into |pkm.pages| in |pkm.Load()|.
 
 		Default: TRUE
 
 pkm.ignorecase						*pkm.ignorecase*
 
-		TRUE to ignore case of the kyes when |pkm.Filter()| is
-		called.
+		TRUE to ignore case of the |pkm.keys|.
 		Examples:
 			- When TRUE
 			  item : [a] A [b] B [c] C
@@ -609,30 +640,33 @@ pkm.ignorecase						*pkm.ignorecase*
 
 pkm.next_page_key					*pkm.next_page_key*
 
-		A letter mapped to the key moves to the next page.
-		After the next page is displayed , the |pkm.Filter()| returns
-		with TRUE.
+		A letter that will be mapped to the key that moves to the
+		next page. After the next page is displayed, the |pkm.Filter()|
+		returns with TRUE.
 
 		Default: "L"
 
 pkm.prev_page_key					*pkm.prev_page_key*
 
-		A letter mapped to the key moves to the previous page.
-		After the previous page is displayed , the |pkm.Filter()|
-		returns with TRUE.
+		A letter that will be mapped to the key that moves to the
+		previous page. After the previous page is displayed, the
+		|pkm.Filter()| returns with TRUE.
 
 		Default: "H"
 
 pkm.key_guide						*pkm.key_guide*
 
-		A template that is displayed at the left of a item.
-		"%k" is replaced by the [k]ey which is mapped to a item.
+		A template of the guide that will be displayed at the
+		left of a item. "%k" is replaced by the [k]ey which is
+		mapped to a item.
 
 		Default: "[%k] "
 
 pkm.page_guides						*pkm.page_guides*
 
-		Templates that are displayed bottom of the pkm popup.
+		Templates of the page guide that are displayed bottom
+		of the pkm popup.
+
 		Needs 3 template:
 		 - Index 0: For the first page
 		 - Index 1: For the middle pages
