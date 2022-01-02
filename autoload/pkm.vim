@@ -445,6 +445,7 @@ function! pkm#PopupKeyMenu()
     let self.options = #{
           \ filter: s:scirpt_func_prefix.'CallPopupFilter',
           \ callback: s:scirpt_func_prefix.'CallPopupCallback',
+          \ mapping: 1,
           \}
 
     for [key, value] in items(a:options)
