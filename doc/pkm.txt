@@ -31,7 +31,7 @@ oriented popup menu. See |popup.txt| for details on popup.
 ==============================================================================
 2. Usage						*pkm-usage*
 
- +------------------------X
+ +------------------------+
  | [r] red    [b] blue    |
  | [y] yellow [o] orange  |
  +------------------------+
@@ -94,19 +94,19 @@ pages. On the default behavior, the key 'l' transits to next page, and the
 key 'h' does the opposite of that. The page guide can be customized by
 the |pkm.page_guides| property.
 
- +------------------------------------X
+ +------------------------------------+
  | [r] red          [b] blue          |
  | [y] yellow       [o] orange        |
  |                (0) [L] >>          |
  +------------------------------------+
 
- +------------------------------------X
+ +------------------------------------+
  | [r] dark-red     [b] dark-blue     |
  | [y] dark-yellow  [o] dark-orange   |
  |         << [H] (1) [L] >>          |
  +------------------------------------+
 
- +------------------------------------X
+ +------------------------------------+
  | [r] light-red    [b] light-blue    |
  | [y] light-yellow [o] light-orange  |
  |         << [H] (2)                 |
@@ -196,15 +196,15 @@ pkm.Load({items})					*pkm.Load()*
 pkm.Open({options})					*pkm.Open()*
 
 		Create and open a pkm popup. {options} argument is
-		|popup_create()| options. The filter and the callback, and the
-		close (when the xclose is 1) options are reserved by this
+		|popup_create()| options. The 'filter', the 'callback'
+		and the 'mapping' options are reserved by this
 		method. >
 			:call pkm.Open(#{
  				\ padding: [0, 1, 0, 1],
  				\ border: [1, 1, 1, 1],
  				\ })
 <
-				+----------X
+				+----------+
 				| [a] AAA  |
 				| [b] BBB  |
 				| [c] CCC  |
@@ -237,14 +237,14 @@ pkm.Filter({winid}, {key})				*pkm.Filter()*
 		behaviors.
 
 		Can be called directory:
-			+-------------------X
+			+-------------------+
 			| [a] AAA [b] BBB   |
 			|        (0) [L] >> |
 			+-------------------+
 >
 			:call pkm.Filter(pkm.winid, 'L')
 <
-			+-------------------X
+			+-------------------+
 			| [a] CCC [b] DDD   |
 			| << [H] (1)        |
 			+-------------------+
@@ -376,19 +376,6 @@ PROPS							*pkm-props*
 	pkm.prev_page_key
 	pkm.ignorecase
 	pkm.focus
-
-	add_page_guide	Toggles adding the page guide to pkm.pages or not.
-	key_guide	Formats the displayed key next to a item.
-	page_guides	Formats the page guides.
-	xclose		Toggles mapping the 'x' key to the key that closes
-			the pkm popup, or not.
-	next_page_key	The key that matched the key and moves to a next page.
-	prev_page_key	The key that matched the key and moves to a previous
-			page.
-	ignorecase	Toggles ignoring the case of the key when
-			|pkm.OnKeySelect()| is called, or not.
-	focus		Toggles discarding the key which not matched any where,
-			or not.
 
 ------------------------------------------------------------------------------
 PROP DETAILS						*pkm-prop-details*
@@ -569,6 +556,7 @@ pkm.fix_cols						*pkm.fix_cols*
 			        ----- ----- -----
 			page 1: [a] D
 			        ----- ----- -----
+
 		Default: FALSE
 
 pkm.fix_lines						*pkm.fix_lines*
@@ -589,29 +577,70 @@ pkm.fix_lines						*pkm.fix_lines*
 
 pkm.xclose						*pkm.xclose*
 
-		Default: 1
+		TRUE to map the key 'x' to the key closes the pkm popup.
+		After the popup is closed, the |pkm.Filter()| return with
+		TRUE.
+
+		Default: TRUE
 
 pkm.page_guide						*pkm.page_guide*
 
-		Default: 1
+		TRUE to add the page guide into |pkm.pages| in |pkm.Load()|
+		when multiple pages.
+
+		Default: TRUE
 
 pkm.ignorecase						*pkm.ignorecase*
 
-		Default: 0
+		TRUE to ignore case of the kyes when |pkm.Filter()| is
+		called.
+		Examples:
+			- When TRUE
+			  item : [a] A [b] B [c] C
+			         ----- ----- -----
+			  key  : aA    bB    cC
+
+			- When FALSE
+			  item : [a] A [b] B [c] C
+			         ----- ----- -----
+			  key  : a     b     c
+
+		Default: FALSE
 
 pkm.next_page_key					*pkm.next_page_key*
+
+		A letter mapped to the key moves to the next page.
+		After the next page is displayed , the |pkm.Filter()| returns
+		with TRUE.
 
 		Default: "L"
 
 pkm.prev_page_key					*pkm.prev_page_key*
 
+		A letter mapped to the key moves to the previous page.
+		After the previous page is displayed , the |pkm.Filter()|
+		returns with TRUE.
+
 		Default: "H"
 
 pkm.key_guide						*pkm.key_guide*
 
+		A template that is displayed at the left of a item.
+		"%k" is replaced by the [k]ey which is mapped to a item.
+
 		Default: "[%k] "
 
 pkm.page_guides						*pkm.page_guides*
+
+		Templates that are displayed bottom of the pkm popup.
+		Needs 3 template:
+		 - Index 0: For the first page
+		 - Index 1: For the middle pages
+		 - Index 2: For the last page
+
+		"%p" is replaced by the [p]age number.
+		"%n" is replaced by the pkm.[n]ext_page_key.
+		"%v" is replaced by the pkm.pre[v]_page_key.
 
 		Default: [
 		\ "       (%p) [%n] >>",
@@ -621,8 +650,16 @@ pkm.page_guides						*pkm.page_guides*
 
 
 pkm.focus						*pkm.focus*
+		When FALSE, |pkm.Filter()| will return FALSE when the key is
+		not matched the props, |pkm.next_page_key|, |pkm.next_page_key|,
+		|pkm.keys|, 'x'(when the |pkm.xclose| is 1).
+		When TRUE, the method will return TRUE, even if the key is not
+		matched the props.
 
-		Default: 1
+		Note: See |popup-filter| help for details on how return value
+		affects behavior.
+
+		Default: TRUE
 
 ------------------------------------------------------------------------------
 OTHER FUNCTIONS						*pkm-other-functions*
