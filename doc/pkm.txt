@@ -465,7 +465,7 @@ pkm.keys						*pkm.keys*
 
 pkm.max_cols_lines					*pkm.max_cols_lines*
 
-		Maximum number of a the item colmuns or the lines in the page.
+		Maximum number of a the the colmuns or the lines in the page.
 		When the |pkm.vertical| is 0, this prop controls the number of
 		colmuns. When pkm.vertical is 1, this prop controls the number
 		of lines.
@@ -473,14 +473,14 @@ pkm.max_cols_lines					*pkm.max_cols_lines*
 			  [a] AAA [b] BBB [c] CCC
 			  [d] DDD [e] EEE
 
-			  3 item colmuns and 2 lines
+			  3 colmuns and 2 lines
 
 			- pkm.max_cols_lines is 3, pkm.vertical is TRUE:
 			  [a] AAA [d] DDD
 			  [b] BBB [e] EEE
 			  [c] CCC
 
-			  2 item colmuns and 3 lines
+			  2 colmuns and 3 lines
 
 		Default: 1
 
@@ -513,7 +513,7 @@ pkm.align						*pkm.align*
 		   - pkm.fix_lines (default FALSE)
 
 		   Only the pkm.col_width will be always on, it can be
-		   chosen how to adjust item colmun width.
+		   chosen how to adjust the colmun width.
 		   Examples:
 			- When the pkm.col_width is "auto":
 			  page 1: [a] This [b] is the pkm.align [c] example
@@ -536,7 +536,7 @@ pkm.align						*pkm.align*
 
 pkm.col_width						*pkm.col_width*
 
-		How to adjust width of item colmun. Can use "auto" or "max",
+		How to adjust width of the colmun. Can use "auto" or "max",
 		number, number list:
 		 - When "auto",
 		   each width of the colum will be adjusted to longest item
