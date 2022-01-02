@@ -14,10 +14,10 @@ CONTENTS 						*pkm-contents*
 2. Usage		|pkm-usage|
 3. Install		|pkm-install|
 4. Interface		|pkm-interface|
+   API Content		|pkm-api-content|
    Popup Key Menu	|pkm-popup-key-menu|
    Handlers		|pkm-handlers|
    Props		|pkm-props|
-   Prop Details		|pkm-prop-details|
    Other Functions	|pkm-other-functions|
    Variables		|pkm-variables|
 5. Samples		|pkm-samples|
@@ -133,34 +133,37 @@ like the following.
 ==============================================================================
 4. Interface						*pkm-interface*
 
-	pkm#PopupKeyMenu()
-	pkm.Load()
-	pkm.Open()
-	pkm.Filter()
-	pkm.Remove()
-	pkm.OnOpen()
-	pkm.OnFilter()
-	pkm.OnKeySelect()
-	pkm.OnClose()
-	pkm.winid
-	pkm.pkm_id
-	pkm.pages
-	pkm.keys
-	pkm.max_cols_lines
-	pkm.item_border
-	pkm.align
-	pkm.vertical
-	pkm.col_width
-	pkm.fix_cols
-	pkm.fix_lines
-	pkm.add_page_guide
-	pkm.key_guide
-	pkm.page_guides
-	pkm.xclose
-	pkm.next_page_key
-	pkm.prev_page_key
-	pkm.ignorecase
-	pkm.focus
+------------------------------------------------------------------------------
+API CONTENT						*pkm-api-content*
+
+	|pkm#PopupKeyMenu()|
+	|pkm.Load()|
+	|pkm.Open()|
+	|pkm.Filter()|
+	|pkm.Remove()|
+	|pkm.OnOpen()|
+	|pkm.OnFilter()|
+	|pkm.OnKeySelect()|
+	|pkm.OnClose()|
+	|pkm.winid|
+	|pkm.pkm_id|
+	|pkm.pages|
+	|pkm.keys|
+	|pkm.max_cols_lines|
+	|pkm.item_border|
+	|pkm.align|
+	|pkm.vertical|
+	|pkm.col_width|
+	|pkm.fix_cols|
+	|pkm.fix_lines|
+	|pkm.add_page_guide|
+	|pkm.key_guide|
+	|pkm.page_guides|
+	|pkm.xclose|
+	|pkm.next_page_key|
+	|pkm.prev_page_key|
+	|pkm.ignorecase|
+	|pkm.focus|
 
 ------------------------------------------------------------------------------
 POPUP KEY MENU						*pkm-popup-key-menu*
@@ -386,28 +389,6 @@ pkm.OnClose({winid}, {secondarg})				*pkm.OnClose()*
 
 ------------------------------------------------------------------------------
 PROPS							*pkm-props*
-	pkm.winid
-	pkm.pkm_id
-	pkm.pages
-	pkm.keys
-	pkm.max_cols_lines
-	pkm.item_border
-	pkm.align
-	pkm.vertical
-	pkm.col_width
-	pkm.fix_cols
-	pkm.fix_lines
-	pkm.add_page_guide
-	pkm.key_guide
-	pkm.page_guides
-	pkm.xclose
-	pkm.next_page_key
-	pkm.prev_page_key
-	pkm.ignorecase
-	pkm.focus
-
-------------------------------------------------------------------------------
-PROP DETAILS						*pkm-prop-details*
 
 pkm.winid						*pkm.winid*
 
@@ -684,6 +665,7 @@ pkm.page_guides						*pkm.page_guides*
 
 
 pkm.focus						*pkm.focus*
+
 		When FALSE, |pkm.Filter()| will return FALSE when the key is
 		not matched the props, |pkm.next_page_key|, |pkm.next_page_key|,
 		|pkm.keys|, 'x'(when the |pkm.xclose| is 1).
@@ -698,11 +680,11 @@ pkm.focus						*pkm.focus*
 ------------------------------------------------------------------------------
 OTHER FUNCTIONS						*pkm-other-functions*
 
-pkm#PkmMenus()						*pkm#PkmMenus()*
+pkm#GetPkmMenus()					*pkm#GetPkmMenus()*
 
 		Description about the function.
 
-pkm#NextId()						*pkm#NextId()*
+pkm#GetNextId()						*pkm#GetNextId()*
 
 		Description about the function.
 
