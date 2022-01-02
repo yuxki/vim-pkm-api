@@ -72,8 +72,8 @@ the pkm_id is exists in the script variable dict, and you can reuse the
 pkm dict.
 
 #2 The |pkm-props| changes the pkm popup behavior. In this sample,
-'[key] item' pairs will be displayed with 2 columns, and '[key]' will be
-the keys 'r', 'b', 'y', 'o'.
+'[key] item' pairs will be displayed with 2 item columns, and '[key]'
+will be the keys 'r', 'b', 'y', 'o'.
 
 #3 The |pkm-handlers| can be used by overriding. The |pkm.OnKeySelect()| will be
 called when the key is selected. In this case, the key 'r' returns 0, and the
@@ -177,7 +177,7 @@ pkm.Load({items})					*pkm.Load()*
 
 			keys
 			max_cols_lines
-			col_border
+			item_border
 			add_page_guide
 			align
 			col_width
@@ -362,7 +362,7 @@ PROPS							*pkm-props*
 	pkm.pages
 	pkm.keys
 	pkm.max_cols_lines
-	pkm.col_border
+	pkm.item_border
 	pkm.align
 	pkm.vertical
 	pkm.col_width
@@ -377,10 +377,6 @@ PROPS							*pkm-props*
 	pkm.ignorecase
 	pkm.focus
 
-	col_border	Separates a next column item.
-	align		TRUE to align displayed items.
-	vertical	TRUE to vertical align the displayed keys.
-	col_width	Controls each column width.
 	fix_width	Toggles fixing width of the popup window or not.
 	fix_height	Toggles fixing height of the popup window or not.
 	add_page_guide	Toggles adding the page guide to pkm.pages or not.
@@ -453,55 +449,128 @@ pkm.keys						*pkm.keys*
 
 pkm.max_cols_lines					*pkm.max_cols_lines*
 
-		Maximum number a pair of the key guide and a item turns at.
-		When |pkm.vertical| is 0, turns to next line, when
-		pkm.vertical is 1, truns to next colmun.
+		Maximum number a pair of the key guide and a item returns
+		at. When |pkm.vertical| is 0, returns to next line, when
+		pkm.vertical is 1, truns to next item colmun.
 		Examples:
-			- pkm.max_cols_lines is 3, and pkm.vertical is 0:
+			- pkm.max_cols_lines is 3, pkm.vertical is FALSE:
 			  [a] AAA [b] BBB [c] CCC
 			  [d] DDD [e] EEE
 
-			  3 colmuns and 2 lines
+			  3 item colmuns and 2 lines
 
-			- pkm.max_cols_lines is 3, and pkm.vertical is 1:
+			- pkm.max_cols_lines is 3, pkm.vertical is TRUE:
 			  [a] AAA [d] DDD
 			  [b] BBB [e] EEE
 			  [c] CCC
 
-			  2 colmuns and 3 lines
+			  2 item colmuns and 3 lines
 
 		Default: 1
 
-pkm.col_border						*pkm.col_border*
+pkm.vertical						*pkm.vertical*
+
+		When TRUE, items are alinged vertically. When FALSE,
+		horizontally (the default).
+
+		See |pkm.max_cols_lines| for aligning example.
+
+		Default: FALSE
+
+pkm.item_border						*pkm.item_border*
 
 		String separates between columns. When items are aligned
 		by a line, this prop does not work.
 
 		Examples:
-			- pkm.col_border is " | " and 3 colmns:
-			[r] AAA | [b] BBB | [y] CCC
+			- pkm.item_border is " | " and 5 items, 3 colmns:
+			[a] AAA | [b] BBB | [c] CCC
+			[d] DDD | [e] EEE
 
 		Default: " "
 
 pkm.align						*pkm.align*
 
-		Default: 1
+		When TRUE (the default):
+		 - The following props are enabled:
+		   - pkm.col_width (default "auto")
+		   - pkm.fix_width (default FALSE)
+		   - pkm.fix_height (default FALSE)
+
+		   Only the pkm.col_width will be always on, it will be
+		   chosen how to adjust item colmun width.
+		   Examples:
+			- When the pkm.col_width is "auto":
+			  page 1: [a] This [b] is the pkm.align [c] example
+			  page 0: [a] c1   [b] c2               [c] c3
+
+			- When the pkm.align is FALSE:
+			  page 1: [a] This [b] is the pkm.align [c] example
+			  page 0: [a] c1 [b] c2 [c] c3
+
+		 - The page guide is aligned center.
+		   Example:
+			[a] This [b] is the pkm.align [c] example
+			            << [H] (2) [L] >>
+
+			When FALSE:
+			[a] This [b] is the pkm.align [c] example
+			<< [H] (2) [L] >>
+
+		Default: TRUE
 
 pkm.col_width						*pkm.col_width*
+
+		How to adjust width of item colmun.Can use "auto" or "max",
+		number, number list:
+		 - "auto"
+		   Each width of item colum will be adjusted longest item
+		   of self colmun in all pages:
+		 	page 1: [a] This is [b] a  [c] example
+		 	page 0: [a] c1	    [b] c2 [c] c3
+
+		 - "max"
+		    Width of item colums will be adjusted longest width
+		    of all items:
+		 	page 1: [a] This is [b] a       [c] example
+		 	page 0: [a] c1	    [b] c2      [c] c3
+
+		 - number
+		   Width of item colum will be adjusted to this number.
+		 	- A case of 8:
+		 	  [a] A    [b] B    [c] C
+		 	  -------- -------- --------
+		 	         8        8        8
+		   When there is a items which width is more than this number,
+		   only the column that items is positioned works like "auto".
+		 	- A case of 8:
+		 	  page 0: [a] A    [b] B       [c] C
+		 	          -------- ----------- --------
+		 	                 8          11        8
+		 	  page 1: [a] D    [b] EEEEEEE [c] F
+		 	          -------- ----------- --------
+		 	                 8          11        8
+
+		 - number list
+		   Width of item colum will be adjusted to this number list.
+		 	- A case of [4, 8, 16]:
+		 	  [a] A [b] B    [c] C
+		 	  ----- -------- ----------------
+		 	      4        8               16
+		   The other behavior is same as "number".
+
+		To enable this prop, |pkm.align| needs to be TRUE.
 
 		Default: "auto"
 
 pkm.fix_width						*pkm.fix_width*
 
-		Default: 0
+		TRUE to 
+		Default: FALSE
 
 pkm.fix_height						*pkm.fix_height*
 
-		Default: 0
-
-pkm.vertical						*pkm.vertical*
-
-		Default: 0
+		Default: FALSE
 
 pkm.xclose						*pkm.xclose*
 
@@ -535,10 +604,6 @@ pkm.page_guides						*pkm.page_guides*
 		\ "<< [%v] (%p)       ",
 		\ ]
 
-
-pkm.active_modes					*pkm.active_modes*
-
-		Default: ["n"]
 
 pkm.focus						*pkm.focus*
 
