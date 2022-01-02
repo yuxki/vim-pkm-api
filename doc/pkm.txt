@@ -181,8 +181,8 @@ pkm.Load({items})					*pkm.Load()*
 			add_page_guide
 			align
 			col_width
-			fix_width
-			fix_height
+			fix_cols
+			fix_lines
 			vertical
 			xclose
 			key_guide
@@ -366,8 +366,8 @@ PROPS							*pkm-props*
 	pkm.align
 	pkm.vertical
 	pkm.col_width
-	pkm.fix_width
-	pkm.fix_height
+	pkm.fix_cols
+	pkm.fix_lines
 	pkm.add_page_guide
 	pkm.key_guide
 	pkm.page_guides
@@ -377,8 +377,6 @@ PROPS							*pkm-props*
 	pkm.ignorecase
 	pkm.focus
 
-	fix_width	Toggles fixing width of the popup window or not.
-	fix_height	Toggles fixing height of the popup window or not.
 	add_page_guide	Toggles adding the page guide to pkm.pages or not.
 	key_guide	Formats the displayed key next to a item.
 	page_guides	Formats the page guides.
@@ -494,8 +492,8 @@ pkm.align						*pkm.align*
 		When TRUE (the default):
 		 - The following props are enabled:
 		   - pkm.col_width (default "auto")
-		   - pkm.fix_width (default FALSE)
-		   - pkm.fix_height (default FALSE)
+		   - pkm.fix_cols (default FALSE)
+		   - pkm.fix_lines (default FALSE)
 
 		   Only the pkm.col_width will be always on, it will be
 		   chosen how to adjust item colmun width.
@@ -563,12 +561,29 @@ pkm.col_width						*pkm.col_width*
 
 		Default: "auto"
 
-pkm.fix_width						*pkm.fix_width*
+pkm.fix_cols						*pkm.fix_cols*
 
-		TRUE to 
+		TRUE to fix the number of item colmns in all pages.
+		Example:
+			page 0: [a] A [b] B [c] C
+			        ----- ----- -----
+			page 1: [a] D
+			        ----- ----- -----
 		Default: FALSE
 
-pkm.fix_height						*pkm.fix_height*
+pkm.fix_lines						*pkm.fix_lines*
+
+		TRUE to fix the number of lines in all pages.
+		Example:
+			page 0: [a] A [b] B
+				[c] C [d] D
+				[e] E [f] F
+				----- -----
+
+			page 1: [a] G
+
+
+				-----
 
 		Default: FALSE
 
