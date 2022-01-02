@@ -104,8 +104,8 @@ function! pkm#PopupKeyMenu()
   let s:popup_key_menu.add_page_guide = 1
   let s:popup_key_menu.align = 1
   let s:popup_key_menu.col_width = 'auto' " 'auto', 'max', number, numbers list
-  let s:popup_key_menu.fix_width = 0
-  let s:popup_key_menu.fix_height = 0
+  let s:popup_key_menu.fix_cols = 0
+  let s:popup_key_menu.fix_lines = 0
   let s:popup_key_menu.vertical = 0
   let s:popup_key_menu.xclose = 1
   let s:popup_key_menu.key_guide = '[%k] '
@@ -220,8 +220,8 @@ function! pkm#PopupKeyMenu()
     return s:col_lens
   endfunction
 
-  " popup_key_menu.__FixHeight---------------------------------------------------------------------
-  function! s:popup_key_menu.__FixHeight(w_pages, col_lens, line_number) dict
+  " popup_key_menu.__FixLines----------------------------------------------------------------------
+  function! s:popup_key_menu.__FixLines(w_pages, col_lens, line_number) dict
     let s:blank_cols = []
 
     while len(s:blank_cols) < len(a:col_lens)
@@ -235,8 +235,8 @@ function! pkm#PopupKeyMenu()
     endfor
   endfunction
 
-  " popup_key_menu.__FixWidth----------------------------------------------------------------------
-  function! s:popup_key_menu.__FixWidth(w_pages, col_lens) dict
+  " popup_key_menu.__FixCols-----------------------------------------------------------------------
+  function! s:popup_key_menu.__FixCols(w_pages, col_lens) dict
     for lines in a:w_pages
       for cols in lines
         while len(cols) < len(a:col_lens)
@@ -344,13 +344,13 @@ function! pkm#PopupKeyMenu()
     let s:max_col_lens = self.__ColLens(s:w_pages)
     let s:max_line_number = len(s:w_pages[0])
 
-    " fix height and width
+    " fix lines and cols
     if self.align
-      if self.fix_height
-        call self.__FixHeight(s:w_pages, s:max_col_lens, s:max_line_number)
+      if self.fix_lines
+        call self.__FixLines(s:w_pages, s:max_col_lens, s:max_line_number)
       endif
-      if self.fix_width
-        call self.__FixWidth(s:w_pages, s:max_col_lens)
+      if self.fix_cols
+        call self.__FixCols(s:w_pages, s:max_col_lens)
       endif
     endif
 
