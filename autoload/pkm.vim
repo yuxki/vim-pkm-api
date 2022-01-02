@@ -32,7 +32,7 @@ set cpo&vim
 let s:pkm_api_popup_key_menus = {}
 let s:pkm_api_popup_key_menu_id = 1000
 
-function! pkm#GetPkmMenus()
+function! pkm#GetPkmDicts()
   return s:pkm_api_popup_key_menus
 endfunction
 
