@@ -365,7 +365,7 @@ function! pkm#PopupKeyMenu()
 
   " popup_key_menu.__XClose------------------------------------------------------------------------
   function! s:popup_key_menu.__XClose(winid, key) dict
-    if a:key == 'x'
+    if a:key ==# 'x'
       call popup_close(a:winid, a:key)
       return 1
     endif
@@ -446,10 +446,6 @@ function! pkm#PopupKeyMenu()
           \ filter: s:scirpt_func_prefix.'CallPopupFilter',
           \ callback: s:scirpt_func_prefix.'CallPopupCallback',
           \}
-
-    if self.xclose
-      let self.options['close'] = 'button'
-    endif
 
     for [key, value] in items(a:options)
       let self.options[key] = value
