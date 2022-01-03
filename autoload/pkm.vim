@@ -96,7 +96,7 @@ function! pkm#PopupKeyMenu()
   " General
   let pkm.winid = -1
   " Load
-  let pkm.what = []
+  let pkm.items = []
   let pkm.pages = []
   let pkm.keys ='abcdefimnopqrstuvwyz'
   let pkm.max_cols_lines = 1
@@ -133,8 +133,8 @@ function! pkm#PopupKeyMenu()
     let lines = []
     let pages = []
 
-    for w in self.what
-      call add(cols, substitute(self.key_guide ,'%k', self.keys[(key_number % key_max)], 'g').w)
+    for item in self.items
+      call add(cols, substitute(self.key_guide ,'%k', self.keys[(key_number % key_max)], 'g').item)
       let key_number += 1
       let col_number += 1
 
@@ -144,7 +144,7 @@ function! pkm#PopupKeyMenu()
         let col_number = 0
       endif
 
-      if (key_number % key_max) == 0 || key_number == len(self.what)
+      if (key_number % key_max) == 0 || key_number == len(self.items)
         if len(cols) > 0
           call add(lines, cols)
           let cols = []
@@ -331,8 +331,8 @@ function! pkm#PopupKeyMenu()
   endfunction
 
   " popup_key_menu.Load----------------------------------------------------------------------------
-  function! pkm.Load(what) dict
-    let self.what = a:what
+  function! pkm.Load(items) dict
+    let self.items = a:items
     let w_pages = self.__WorkingPages()
 
     " convert to vertical align
@@ -387,7 +387,7 @@ function! pkm#PopupKeyMenu()
   " popup_key_menu.__AfterPageKeysRest-------------------------------------------------------------
   function! pkm.__AfterPageKeysRest() dict
     let key_max = self.__KeepInKeyRange()
-    return len(self.what) - ((self.page_number + 1) * key_max)
+    return len(self.items) - ((self.page_number + 1) * key_max)
   endfunction
 
   " popup_key_menu.__SearchKeyIndex----------------------------------------------------------------
@@ -430,7 +430,7 @@ function! pkm#PopupKeyMenu()
     " TODO support CTRL + key
     if len(a:key) == 1 " avoid interruption by other program
       if (self.__AfterPageKeysRest() >= 0 && self.keys[0:key_max - 1] =~# a:key) ||
-       \ (len(self.what) % key_max > 0 && self.keys[0:(len(self.what) % key_max) - 1] =~# a:key)
+       \ (len(self.items) % key_max > 0 && self.keys[0:(len(self.items) % key_max) - 1] =~# a:key)
         call self.OnKeySelect(a:winid, self.__SearchKeyIndex(a:key) + (self.page_number * key_max))
         return 1
       endif
