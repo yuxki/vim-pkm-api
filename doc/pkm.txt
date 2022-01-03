@@ -185,11 +185,11 @@ pkm#PopupKeyMenu()					*pkm#PopupKeyMenu()*
 		This id is assigned from the unique "script variable number"
 		that is incremented. >
 			:call pkm#PopupKeyMenu()
-			:echo pkm#PkmMenus()
+			:echo pkm#GetPkmDicts()
 			{'1000': {...}}
 
  			:call pkm#PopupKeyMenu()
-			:echo pkm#PkmMenus()
+			:echo pkm#GetPkmDicts()
 			{'1000': {...}, '1001': {...}}
 <
 
@@ -701,22 +701,22 @@ UTILS							*pkm-utils*
 
 pkm#GetPkmDicts()					*pkm#GetPkmDicts()*
 
-		Gets the pkm dicts from the script variable dict.
-		Example: >
-			pkm#GetPkmDicts()
+		Gets the pkm dicts from the script variable.
 
 pkm#GetNextId()						*pkm#GetNextId()*
 
-		Gets the number that will be assinged the next pkm dict.
+		Gets the number that will be assinged the next pkm dict from
+		the script variable.
 
 pkm#Clear()						*pkm#Clear()*
 
-		Closes the all pkm popups, and initializes the script variable
-		dict.
+		Closes the all pkm popups, and initializes the dict of the
+		script variables.
 
 pkm#Exists({pkmid})					*pkm#Exists()*
 
-		Description about the function.
+		Returns 1 if {pkmid} (|pkm.pkm_id|) is exists in the script
+		variable, if not returns 0.
 
 ==============================================================================
 SAMPLES							*pkm-samples*
