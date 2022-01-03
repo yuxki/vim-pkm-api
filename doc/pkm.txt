@@ -151,6 +151,7 @@ API CONTENTS						*pkm-api-contents*
 	|pkm-props|
 	  |pkm.winid|
 	  |pkm.pkm_id|
+	  |pkm.items|
 	  |pkm.pages|
 	  |pkm.keys|
 	  |pkm.max_cols_lines|
@@ -169,7 +170,7 @@ API CONTENTS						*pkm-api-contents*
 	  |pkm.ignorecase|
 	  |pkm.focus|
 	|pkm-utils|
-	  |pkm#GetPkmMenus()|
+	  |pkm#GetPkmDicts()|
 	  |pkm#GetNextId()|
 	  |pkm#Clear()|
 	  |pkm#Exists()|
@@ -382,7 +383,7 @@ pkm.OnKeySelect({winid}, {index})			*pkm.OnKeySelect()*
 
 		Example: >
 			func! pkm.OnKeySelect(winid, index)
-			  execute my_awesome_commands[a:index]
+			  execute s:my_awesome_commands[a:index]
 			  call popup_close(a:winid)
 			endfunc
 
@@ -422,6 +423,14 @@ pkm.pkm_id						*pkm.pkm_id*
 		The number links the pkm dict to the |popup-filter| and the
 		|popup-callback| via the winid.
 		See |pkm#PopupKeyMenu()| for the example of this prop usage.
+
+pkm.items						*pkm.items*
+
+		The list of the item that will be mapped to the keys.
+		Example: >
+			func! pkm.OnKeySelect(winid, index)
+			  echo self.items[a:index]
+			endfunc
 
 pkm.pages						*pkm.pages*
 
@@ -690,17 +699,20 @@ pkm.focus						*pkm.focus*
 ------------------------------------------------------------------------------
 UTILS							*pkm-utils*
 
-pkm#GetPkmMenus()					*pkm#GetPkmMenus()*
+pkm#GetPkmDicts()					*pkm#GetPkmDicts()*
 
-		Gets the pkm dicts.
+		Gets the pkm dicts from the script variable dict.
+		Example: >
+			pkm#GetPkmDicts()
 
 pkm#GetNextId()						*pkm#GetNextId()*
 
-		Description about the function.
+		Gets the number that will be assinged the next pkm dict.
 
 pkm#Clear()						*pkm#Clear()*
 
-		Description about the function.
+		Closes the all pkm popups, and initializes the script variable
+		dict.
 
 pkm#Exists({pkmid})					*pkm#Exists()*
 
