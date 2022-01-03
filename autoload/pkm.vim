@@ -454,7 +454,7 @@ function! pkm#PopupKeyMenu()
   endfunction
 
   " popup_key_menu.Open----------------------------------------------------------------------------
-  function! pkm.Open(options) dict
+  function! pkm.Open(options=#{}) dict
     call self.__InitPopupOptions(a:options)
 
     if len(self.pages) <= 0
