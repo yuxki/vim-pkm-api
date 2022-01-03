@@ -391,8 +391,8 @@ function! pkm#PopupKeyMenu()
   endfunction
 
   " popup_key_menu.__SearchKeyIndex----------------------------------------------------------------
-  function! pkm.__SearchKeyIndex(key) dict
-    return matchstrpos(self.keys, self.ignorecase ? a:key : a:key.'\C')[1]
+  function! pkm.__SearchKeyIndex(key, end_index=-1) dict
+    return matchstrpos(self.keys[0:a:end_index], self.ignorecase ? a:key : a:key.'\C')[1]
   endfunction
 
   " popup_key_menu.Filter--------------------------------------------------------------------------
@@ -428,10 +428,12 @@ function! pkm#PopupKeyMenu()
     endif
 
     " TODO support CTRL + key
-    if len(a:key) == 1 " avoid interruption by other program
-      if (self.__AfterPageKeysRest() >= 0 && self.keys[0:key_max - 1] =~# a:key) ||
-       \ (len(self.items) % key_max > 0 && self.keys[0:(len(self.items) % key_max) - 1] =~# a:key)
-        call self.OnKeySelect(a:winid, self.__SearchKeyIndex(a:key) + (self.page_number * key_max))
+    if len(a:key) == 1 " avoid interruption by other programs
+      let end_index = self.__AfterPageKeysRest() >= 0 ?
+            \ key_max - 1 : (len(self.items) % key_max) - 1
+      let key_index = self.__SearchKeyIndex(a:key, end_index)
+      if key_index >= 0
+        call self.OnKeySelect(a:winid, key_index + (self.page_number * key_max))
         return 1
       endif
     endif
@@ -474,7 +476,7 @@ function! pkm#PopupKeyMenu()
 
   " popup_key_menu.Remove--------------------------------------------------------------------------
   function! pkm.Remove() dict
-    call remove(s:pkm_api_popup_key_menus, self.pkm_api_popup_key_menu_id)
+    call remove(s:pkm_api_popup_key_menus, self.pkm_id)
   endfunction
 
   " Handlers ======================================================================================
