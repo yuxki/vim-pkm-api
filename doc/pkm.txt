@@ -43,26 +43,27 @@ according to the the key. The key 'x' closes the popup. Set 0 to the
 Note: See |pkm-samples| to get more "plugin like" samples.
 >
  let s:colors = ['red', 'blue', 'yellow', 'orange']
- let s:popup_options = #{
+ let s:options = #{
   \ padding: [0, 1, 0, 1],
   \ border: [1, 1, 1, 1],
+  \ filtermode: 'n',
   \ }
  let s:pkm_id = ''
 
  function! SamplePkm()
    if !pkm#Exists(s:pkm_id)
-     let s:pkm = pkm#PopupKeyMenu()		" #1
-     let s:pkm.max_cols_lines = 2		" #2
-     let s:pkm.keys ='rbyo'
+     let s:pkm = pkm#PopupKeyMenu()            " #1
+     let s:pkm.max_cols_lines = 2              " #2
+     let s:pkm.keys = 'rbyo'
 
-     function! s:pkm.OnKeySelect(winid, index)  " #3
-       echo s:colors[a:index]
+     function! s:pkm.OnKeySelect(winid, index) " #3
+       echo self.items[a:index]
      endfunction
 
-     call s:pkm.Load(s:colors)			" #4
+     call s:pkm.Load(s:colors)                 " #4
    endif
 
-   call s:pkm.Open(s:popup_options)		" #5
+   call s:pkm.Open(s:options)                  " #5
    let s:pkm_id = s:pkm.pkm_id
  endfunction
 <
@@ -210,7 +211,7 @@ pkm.Load({items})					*pkm.Load()*
 		string list, and a item is displayed next to a the mapped
 		key. As a result, the |pkm.pages| is created. >
 			:let id = pkm#PopupKeyMenu()
-			:let s:pkm.max_cols_lines = 2
+			:let pkm.max_cols_lines = 2
 			:let pkm.keys ='abcd'
 			:call pkm.Load(items)
 			:echo pkm#PkmMenus()[id].pages
@@ -243,7 +244,7 @@ pkm.Open({options})					*pkm.Open()*
 		|popup_create()| options. The 'filter', the 'callback'
 		and the 'mapping' options are reserved by this
 		method. >
-			:call pkm.Open(#{
+			call pkm.Open(#{
  				\ padding: [0, 1, 0, 1],
  				\ border: [1, 1, 1, 1],
  				\ })
