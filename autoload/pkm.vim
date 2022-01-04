@@ -98,7 +98,7 @@ function! pkm#PopupKeyMenu()
   " Load
   let pkm.items = []
   let pkm.pages = []
-  let pkm.keys ='abcdefimnopqrstuvwyz'
+  let pkm.keys ='abcdefghijklmnopqrstuvwxyz'
   let pkm.max_cols_lines = 1
   let pkm.item_border = ' '
   let pkm.add_page_guide = 1
@@ -452,7 +452,7 @@ function! pkm#PopupKeyMenu()
     let self.options = #{
           \ filter: scirpt_func_prefix.'CallPopupFilter',
           \ callback: scirpt_func_prefix.'CallPopupCallback',
-          \ mapping: 1,
+          \ mapping: 0,
           \}
 
     for [key, value] in items(a:options)
