@@ -333,6 +333,11 @@ function! pkm#PopupKeyMenu()
   " popup_key_menu.Load----------------------------------------------------------------------------
   function! pkm.Load(items) dict
     let self.items = a:items
+
+    if len(self.items) <= 0
+      return self
+    endif
+
     let w_pages = self.__WorkingPages()
 
     " convert to vertical align
