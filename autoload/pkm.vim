@@ -98,7 +98,7 @@ function! pkm#PopupKeyMenu()
   " Load
   let pkm.items = []
   let pkm.pages = []
-  let pkm.keys ='abcdefghijklmnopqrstuvwxyz'
+  let pkm.keys ='abcdefghijklmnopqrstuvwyz'
   let pkm.max_cols_lines = 1
   let pkm.item_border = ' '
   let pkm.add_page_guide = 1
@@ -335,6 +335,7 @@ function! pkm#PopupKeyMenu()
     let self.items = a:items
 
     if len(self.items) <= 0
+      let self.pages = []
       return self
     endif
 
