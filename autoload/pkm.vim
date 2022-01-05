@@ -115,6 +115,7 @@ function! pkm#PopupKeyMenu()
         \ '<< [%v] (%p) [%n] >>',
         \ '<< [%v] (%p)       ',
         \ ]
+  let pkm.header = ''
   " Filter
   let pkm.ignorecase = 0
   let pkm.next_page_key = 'L'
@@ -302,8 +303,25 @@ function! pkm#PopupKeyMenu()
     return guides
   endfunction
 
+  " popup_key_menu.__Headers-----------------------------------------------------------------------
+  function! pkm.__Headers() dict
+    let headers = []
+
+    if len(self.header) <= 0
+      return headers
+    endif
+
+    if type(self.header) == 1
+      call add(headers, self.header)
+    elseif type(self.header) == 3
+      return self.header
+    endif
+
+    return reverse(headers)
+  endfunctio
+
   " popup_key_menu.__LoadPages---------------------------------------------------------------------
-  function! pkm.__LoadPages(w_pages, col_lens, page_guides) dict
+  function! pkm.__LoadPages(w_pages, col_lens, page_guides, headers) dict
     let self.pages = []
 
     for lines in a:w_pages
@@ -326,6 +344,12 @@ function! pkm#PopupKeyMenu()
         call add(page, line)
       endfor
       call add(self.pages, page)
+    endfor
+
+    for page in self.pages
+      for header in a:headers
+        call insert(page, header)
+      endfor
     endfor
 
     for i in range(0, len(a:page_guides) - 1)
@@ -366,8 +390,11 @@ function! pkm#PopupKeyMenu()
     " get page guides
     let page_guides = self.__PageGuides(w_pages, max_col_lens)
 
+    " get headers
+    let headers = self.__Headers()
+
     " load working pages into self.pages
-    call self.__LoadPages(w_pages, max_col_lens, page_guides)
+    call self.__LoadPages(w_pages, max_col_lens, page_guides, headers)
 
     return self
   endfunction
