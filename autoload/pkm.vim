@@ -493,7 +493,7 @@ function! pkm#PopupKeyMenu()
   " popup_key_menu.Refresh-------------------------------------------------------------------------
   function! pkm.Refresh() dict
     if !self.__IsOpen()
-      return
+      return self
     endif
 
     if len(self.pages) <= 0
@@ -502,11 +502,12 @@ function! pkm#PopupKeyMenu()
       else
         call popup_close(self.winid)
       endif
-      return
+      return self
     endif
 
     let self.__page_number = 0
     call popup_settext(self.winid, self.pages[self.__page_number])
+    return self
   endfunction
 
   " popup_key_menu.Remove--------------------------------------------------------------------------
