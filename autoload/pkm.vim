@@ -120,7 +120,6 @@ function! pkm#PopupKeyMenu()
   let pkm.prev_page_key = 'H'
   let pkm.focus = 1
   " Open
-  let pkm.options = #{}
 
   " popup_key_menu.__WorkingPages------------------------------------------------------------------
   function! pkm.__WorkingPages() dict
@@ -450,21 +449,17 @@ function! pkm#PopupKeyMenu()
   " popup_key_menu.__InitPopupOptions--------------------------------------------------------------
   function! pkm.__InitPopupOptions(options) dict
     let scirpt_func_prefix = '<SNR>'.s:GetScriptNumber().'_'
-    let self.options = #{
+    let options = #{
           \ filter: scirpt_func_prefix.'CallPopupFilter',
           \ callback: scirpt_func_prefix.'CallPopupCallback',
           \ mapping: 0,
           \}
 
-    for [key, value] in items(a:options)
-      let self.options[key] = value
-    endfor
+    return extend(options, a:options)
   endfunction
 
   " popup_key_menu.Open----------------------------------------------------------------------------
   function! pkm.Open(options=#{}) dict
-    call self.__InitPopupOptions(a:options)
-
     if len(self.pages) <= 0
       return self
     endif
@@ -474,7 +469,7 @@ function! pkm#PopupKeyMenu()
     endif
 
     let self.page_number = 0
-    let self.winid = popup_create(self.pages[self.page_number], self.options)
+    let self.winid = popup_create(self.pages[self.page_number], self.__InitPopupOptions(a:options))
     call self.OnOpen(self.winid)
 
     return self
