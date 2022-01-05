@@ -460,9 +460,14 @@ function! pkm#PopupKeyMenu()
     return extend(options, a:options)
   endfunction
 
+  " popup_key_menu.__IsOpen------------------------------------------------------------------------
+  function! pkm.__IsOpen() dict
+    return index(popup_list(), self.winid) >= 0
+  endfunction
+
   " popup_key_menu.Open----------------------------------------------------------------------------
   function! pkm.Open(options=#{}) dict
-    if index(popup_list(), self.winid) >= 0
+    if self.__IsOpen()
       return self
     endif
 
@@ -483,6 +488,25 @@ function! pkm#PopupKeyMenu()
     call self.OnOpen(self.winid)
 
     return self
+  endfunction
+
+  " popup_key_menu.Refresh-------------------------------------------------------------------------
+  function! pkm.Refresh() dict
+    if !self.__IsOpen()
+      return
+    endif
+
+    if len(self.pages) <= 0
+      if len(self.alt) > 0
+        call popup_settext(self.winid, self.alt)
+      else
+        call popup_close(self.winid)
+      endif
+      return
+    endif
+
+    let self.__page_number = 0
+    call popup_settext(self.winid, self.pages[self.__page_number])
   endfunction
 
   " popup_key_menu.Remove--------------------------------------------------------------------------
