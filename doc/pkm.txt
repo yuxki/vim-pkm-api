@@ -165,6 +165,7 @@ API CONTENTS						*pkm-api-contents*
 	  |pkm.add_page_guide|
 	  |pkm.key_guide|
 	  |pkm.page_guides|
+	  |pkm.alt|
 	  |pkm.xclose|
 	  |pkm.next_page_key|
 	  |pkm.prev_page_key|
@@ -608,6 +609,14 @@ pkm.fix_lines						*pkm.fix_lines*
 				-----
 
 		Default: FALSE
+
+pkm.alt							*pkm.alt*
+
+		Alternate texts for the |pkm.pages|. Passed as the {what}
+		of the |popup_create()| arguments, if the pkm.pages is empty
+		and length of this prop is over 1.
+
+		Default: ""
 
 pkm.xclose						*pkm.xclose*
 
