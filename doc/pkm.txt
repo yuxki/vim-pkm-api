@@ -210,7 +210,7 @@ METHODS							*pkm-methods*
 pkm.Load({items})					*pkm.Load()*
 
 		Load the {items} and some |pkm-props|. {items} is a
-		string list, and a item is displayed next to a the mapped
+		string list, and a item is displayed with the mapped
 		key. As a result, the |pkm.pages| is created. >
 			:let id = pkm#PopupKeyMenu()
 			:let pkm.max_cols_lines = 2
@@ -693,11 +693,13 @@ pkm.prev_page_key					*pkm.prev_page_key*
 
 pkm.key_guide						*pkm.key_guide*
 
-		A template of the guide that will be displayed at the
-		left of a item. "%k" is replaced by the [k]ey which is
-		mapped to a item.
+		A template of the guide that will be displayed on the pkm
+		popup window.
 
-		Default: "[%k] "
+		"%k" is replaced by the [k]ey.
+		"%t" is replaced by the i[t]em.
+
+		Default: "[%k] %t"
 
 pkm.page_guides						*pkm.page_guides*
 
