@@ -95,6 +95,7 @@ function! pkm#PopupKeyMenu()
   " Constructor------------------------------------------------------------------------------------
   " General
   let pkm.winid = -1
+  let pkm.__page_number = 0
   " Load
   let pkm.items = []
   let pkm.pages = []
@@ -120,6 +121,7 @@ function! pkm#PopupKeyMenu()
   let pkm.prev_page_key = 'H'
   let pkm.focus = 1
   " Open
+  let pkm.alt = ''
 
   " popup_key_menu.__WorkingPages------------------------------------------------------------------
   function! pkm.__WorkingPages() dict
@@ -392,7 +394,7 @@ function! pkm#PopupKeyMenu()
   " popup_key_menu.__AfterPageKeysRest-------------------------------------------------------------
   function! pkm.__AfterPageKeysRest() dict
     let key_max = self.__KeepInKeyRange()
-    return len(self.items) - ((self.page_number + 1) * key_max)
+    return len(self.items) - ((self.__page_number + 1) * key_max)
   endfunction
 
   " popup_key_menu.__SearchKeyIndex----------------------------------------------------------------
@@ -420,29 +422,29 @@ function! pkm#PopupKeyMenu()
 
     if a:key ==# self.next_page_key
       if self.__AfterPageKeysRest() > 0
-        let self.page_number += 1
-        call popup_settext(a:winid, self.pages[self.page_number])
+        let self.__page_number += 1
+        call popup_settext(a:winid, self.pages[self.__page_number])
       endif
       return 1
     elseif a:key ==# self.prev_page_key
-      if self.page_number > 0
-        let self.page_number -= 1
-        call popup_settext(a:winid, self.pages[self.page_number])
+      if self.__page_number > 0
+        let self.__page_number -= 1
+        call popup_settext(a:winid, self.pages[self.__page_number])
       endif
       return 1
     endif
 
     " TODO support CTRL + key
-    if len(a:key) == 1 " avoid interruption by other programs
+    " check key len is 1 first, to avoid interruptions by other programs
+    if len(a:key) == 1 && len(self.items) > 0
       let end_index = self.__AfterPageKeysRest() >= 0 ?
             \ key_max - 1 : (len(self.items) % key_max) - 1
       let key_index = self.__SearchKeyIndex(a:key, end_index)
       if key_index >= 0
-        call self.OnKeySelect(a:winid, key_index + (self.page_number * key_max))
+        call self.OnKeySelect(a:winid, key_index + (self.__page_number * key_max))
         return 1
       endif
     endif
-
     return self.focus == 1 ? 1 : 0
   endfunction
 
@@ -460,16 +462,24 @@ function! pkm#PopupKeyMenu()
 
   " popup_key_menu.Open----------------------------------------------------------------------------
   function! pkm.Open(options=#{}) dict
-    if len(self.pages) <= 0
-      return self
-    endif
-
     if index(popup_list(), self.winid) >= 0
       return self
     endif
 
-    let self.page_number = 0
-    let self.winid = popup_create(self.pages[self.page_number], self.__InitPopupOptions(a:options))
+    let what = []
+    let self.__page_number = 0
+
+    if len(self.pages) <= 0
+      if len(self.alt) > 0
+        let what = self.alt
+      else
+        return self
+      endif
+    else
+      let what = self.pages[self.__page_number]
+    endif
+
+    let self.winid = popup_create(what, self.__InitPopupOptions(a:options))
     call self.OnOpen(self.winid)
 
     return self
