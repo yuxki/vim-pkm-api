@@ -109,7 +109,7 @@ function! pkm#PopupKeyMenu()
   let pkm.fix_lines = 0
   let pkm.vertical = 0
   let pkm.xclose = 1
-  let pkm.key_guide = '[%k] '
+  let pkm.key_guide = '[%k] %t'
   let pkm.page_guides = [
         \ '       (%p) [%n] >>',
         \ '<< [%v] (%p) [%n] >>',
@@ -135,7 +135,9 @@ function! pkm#PopupKeyMenu()
     let pages = []
 
     for item in self.items
-      call add(cols, substitute(self.key_guide ,'%k', self.keys[(key_number % key_max)], 'g').item)
+      call add(cols, substitute(
+              \ substitute(self.key_guide ,'%k', self.keys[(key_number % key_max)], 'g'),
+            \ '%t', item, 'g'))
       let key_number += 1
       let col_number += 1
 
