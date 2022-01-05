@@ -142,6 +142,7 @@ API CONTENTS						*pkm-api-contents*
 	|pkm-methods|
 	  |pkm.Load()|
 	  |pkm.Open()|
+	  |pkm.Refresh()|
 	  |pkm.Filter()|
 	  |pkm.Remove()|
 	|pkm-handlers|
@@ -267,6 +268,32 @@ pkm.Open({options})					*pkm.Open()*
 			:hi MyPkmColor ctermbg=darkgreen guibg=darkgreen
 			:call setwinvar(pkm.winid, '&wincolor', 'MyPkmColor')
 
+pkm.Refresh()						*pkm.Refresh()*
+
+		Refresh texts of the pkm popupu window.
+		It changes behavior depends on the state:
+		  1. When the |pkm.pages| is not empty.
+		     - Refresh by pkm.pages.
+
+		  2. When the pkm.pages is empty, and the |pkm.alt| is not empty.
+		     - Refresh by the pkm.alt.
+
+		  3. When the pkm.pages is empty, and the pkm.alt is empty.
+		     - Close the pkm popup.
+
+		It can be used for popups that change items dynamically, like
+		the following example: >
+			func! s:pkm.OnKeySelect(winid, index) dict
+			  if self.delete_mode
+			    call remove(s:clips, a:index)
+			    call s:pkm.Load(s:clips)
+			    call s:pkm.Refresh()
+			  endif
+			  exec "normal! i" . s:clips[a:index]
+			endfunc
+<
+		Returns the self dict.
+
 pkm.Filter({winid}, {key})				*pkm.Filter()*
 
 		The popup key menu's |popup-filter|.
@@ -366,7 +393,6 @@ pkm.OnFilter()						*pkm.OnFilter()*
 			  if index([':', 'v'], a:key) >= 0
 			    return -1
 			  endif
-			  return 0
 			endfunc
 
 pkm.OnKeySelect({winid}, {index})			*pkm.OnKeySelect()*
