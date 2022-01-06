@@ -222,20 +222,20 @@ pkm.Load({items})					*pkm.Load()*
 		If items or loaded props are changed, you need reload
 		with calling this method again.
 		Loaded props are following:
-			keys
-			max_cols_lines
-			item_border
-			add_page_guide
-			align
-			col_width
-			fix_cols
-			fix_lines
-			vertical
-			xclose
-			key_guide
-			page_guides
-			next_page_key
-			prev_page_key
+			pkm.keys
+			pkm.max_cols_lines
+			pkm.item_border
+			pkm.add_page_guide
+			pkm.align
+			pkm.col_width
+			pkm.fix_cols
+			pkm.fix_lines
+			pkm.vertical
+			pkm.xclose
+			pkm.key_guide
+			pkm.page_guides
+			pkm.next_page_key
+			pkm.prev_page_key
 
 		Returns the self dict, so can construct ~ open in a line. >
 			:call pkm#PopupKeyMenu().Load(items).Open(options)
