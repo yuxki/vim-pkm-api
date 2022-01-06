@@ -158,19 +158,19 @@ API CONTENTS						*pkm-api-contents*
 	  |pkm.keys|
 	  |pkm.max_cols_lines|
 	  |pkm.vertical|
-	  |pkm.item_border|
 	  |pkm.align|
+	  |pkm.item_border|
 	  |pkm.col_width|
+	  |pkm.key_guide|
+	  |pkm.page_guides|
+	  |pkm.add_page_guide|
 	  |pkm.fix_cols|
 	  |pkm.fix_lines|
 	  |pkm.alt|
 	  |pkm.xclose|
-	  |pkm.add_page_guide|
 	  |pkm.ignorecase|
 	  |pkm.next_page_key|
 	  |pkm.prev_page_key|
-	  |pkm.key_guide|
-	  |pkm.page_guides|
 	  |pkm.focus|
 	|pkm-utils|
 	  |pkm#GetPkmDicts()|
@@ -522,17 +522,6 @@ pkm.vertical						*pkm.vertical*
 
 		Default: FALSE
 
-pkm.item_border						*pkm.item_border*
-
-		String separates between columns.
-
-		Examples:
-			- pkm.item_border is " | " and 5 items, 3 colmns:
-			[a] AAA | [b] BBB | [c] CCC
-			[d] DDD | [e] EEE
-
-		Default: " "
-
 pkm.align						*pkm.align*
 
 		When TRUE (the default):
@@ -562,6 +551,17 @@ pkm.align						*pkm.align*
 			<< [H] (2) [L] >>
 
 		Default: TRUE
+
+pkm.item_border						*pkm.item_border*
+
+		String separates between columns.
+
+		Examples:
+			- pkm.item_border is " | " and 5 items, 3 colmns:
+			[a] AAA | [b] BBB | [c] CCC
+			[d] DDD | [e] EEE
+
+		Default: " "
 
 pkm.col_width						*pkm.col_width*
 
@@ -609,6 +609,43 @@ pkm.col_width						*pkm.col_width*
 
 		Default: "auto"
 
+pkm.key_guide						*pkm.key_guide*
+
+		A template of the guide that will be displayed on the pkm
+		popup window.
+
+		"%k" is replaced by the [k]ey.
+		"%t" is replaced by the i[t]em.
+
+		Default: "[%k] %t"
+
+pkm.page_guides						*pkm.page_guides*
+
+		Templates of the page guide that are displayed bottom
+		of the pkm popup.
+
+		Needs 3 template:
+		 - Index 0: For the first page
+		 - Index 1: For the middle pages
+		 - Index 2: For the last page
+
+		"%p" is replaced by the [p]age number.
+		"%n" is replaced by the pkm.[n]ext_page_key.
+		"%v" is replaced by the pkm.pre[v]_page_key.
+
+		Default: [
+		\ "       (%p) [%n] >>",
+		\ "<< [%v] (%p) [%n] >>",
+		\ "<< [%v] (%p)       ",
+		\ ]
+
+pkm.add_page_guide					*pkm.add_page_guide*
+
+		When TRUE and multiple pages, the page guide will be
+		added into |pkm.pages| in |pkm.Load()|.
+
+		Default: TRUE
+
 pkm.fix_cols						*pkm.fix_cols*
 
 		TRUE to fix the number of item columns in the all pages.
@@ -652,13 +689,6 @@ pkm.xclose						*pkm.xclose*
 
 		Default: TRUE
 
-pkm.add_page_guide					*pkm.add_page_guide*
-
-		When TRUE and multiple pages, the page guide will be
-		added into |pkm.pages| in |pkm.Load()|.
-
-		Default: TRUE
-
 pkm.ignorecase						*pkm.ignorecase*
 
 		TRUE to ignore case of the |pkm.keys|.
@@ -690,36 +720,6 @@ pkm.prev_page_key					*pkm.prev_page_key*
 		|pkm.Filter()| returns with TRUE.
 
 		Default: "H"
-
-pkm.key_guide						*pkm.key_guide*
-
-		A template of the guide that will be displayed on the pkm
-		popup window.
-
-		"%k" is replaced by the [k]ey.
-		"%t" is replaced by the i[t]em.
-
-		Default: "[%k] %t"
-
-pkm.page_guides						*pkm.page_guides*
-
-		Templates of the page guide that are displayed bottom
-		of the pkm popup.
-
-		Needs 3 template:
-		 - Index 0: For the first page
-		 - Index 1: For the middle pages
-		 - Index 2: For the last page
-
-		"%p" is replaced by the [p]age number.
-		"%n" is replaced by the pkm.[n]ext_page_key.
-		"%v" is replaced by the pkm.pre[v]_page_key.
-
-		Default: [
-		\ "       (%p) [%n] >>",
-		\ "<< [%v] (%p) [%n] >>",
-		\ "<< [%v] (%p)       ",
-		\ ]
 
 pkm.focus						*pkm.focus*
 
