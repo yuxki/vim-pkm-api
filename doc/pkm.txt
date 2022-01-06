@@ -164,6 +164,7 @@ API CONTENTS						*pkm-api-contents*
 	  |pkm.key_guide|
 	  |pkm.page_guides|
 	  |pkm.add_page_guide|
+	  |pkm.header|
 	  |pkm.fix_cols|
 	  |pkm.fix_lines|
 	  |pkm.alt|
@@ -645,6 +646,28 @@ pkm.add_page_guide					*pkm.add_page_guide*
 		added into |pkm.pages| in |pkm.Load()|.
 
 		Default: TRUE
+
+pkm.header						*pkm.header*
+
+		String or string list that are inserted into |pkm.pages|
+		displayed above the first line in the pkm popup on all
+		pages. If this prop is empty (default), this prop is
+		disable.
+		Examples:
+			- When "header"
+			  header
+			  [a] AAA [b] BBB [c] CCC
+			  [d] DDD [e] EEE
+
+			- When ["header1", "header2"]
+			  header1
+			  header2
+			  [a] AAA [b] BBB [c] CCC
+			  [d] DDD [e] EEE
+
+		If this prop is empty (default), this prop is disable.
+
+		Default: ""
 
 pkm.fix_cols						*pkm.fix_cols*
 
