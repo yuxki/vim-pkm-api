@@ -3,8 +3,7 @@ func! s:KeywordPosList(line)
   let pos_list = []
 
   while 1
-    "let pos = matchstrpos(a:line, '\k\+', start)
-    let pos = matchstrpos(a:line, '\k', start)
+    let pos = matchstrpos(a:line, '\k\+', start)
     if pos[2] < 0
       break
     endif
@@ -12,22 +11,6 @@ func! s:KeywordPosList(line)
     let start = pos[2]
   endwhile
   return pos_list
-endfunc
-
-func! s:ColAdjuster()
-  let adjuster = 0
-
-  if !&number
-    return adjuster
-  endif
-
-  if &numberwidth < len(line('$')) + 1
-    let adjuster = len(line('$')) + 1
-  else
-    let adjuster = &numberwidth
-  endif
-
-  return adjuster
 endfunc
 
 hi QuickWord term=reverse ctermbg=16 guibg=#000000
@@ -74,18 +57,19 @@ func! s:QuickWord()
   let keywords = []
   let start = 0
   for pos in pos_list
-    let spaces = substitute(line[start:pos[1] - 1], '.', ' ', 'g')
+    let end = (pos[1] - 1) >= 0 ? (pos[1] - 1) : 0
+    let space = end > 0 ? ' ' : ''
+    let spaces = substitute(line[start:end], '[^\t]', space, 'g')
     call add(keywords, spaces)
     let start = pos[1] + 1
   endfor
 
   let s:pkm.pos_list = pos_list
-
   let options = #{
         \ filtermode: 'n',
         \ pos: 'botleft',
         \ line: 'cursor+1',
-        \ col: 1 + s:ColAdjuster(),
+        \ col: 'cursor-' . (virtcol('.') - 1) ,
         \ }
   let s:pkm.header = line
   call s:pkm.Load(keywords).Open(options)
