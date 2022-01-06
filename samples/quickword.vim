@@ -24,6 +24,7 @@ func! s:QuickWord()
     let s:pkm.ignorecase = 1
     let s:pkm.align = 0
     let s:pkm.item_border = ""
+    let s:pkm.page_guides = ["%n>", "<%v %n>", "<%v"]
 
     func! s:pkm.OnOpen(winid)
       call setwinvar(a:winid, '&wincolor', 'QuickWord')
@@ -52,27 +53,36 @@ func! s:QuickWord()
   endif
 
   let line = getline('.')
-  let pos_list = s:KeywordPosList(line)
+  let s:pkm.pos_list = s:KeywordPosList(line)
 
   let keywords = []
   let start = 0
-  for pos in pos_list
+  let keys_len = len(s:pkm.keys)
+  for pos in s:pkm.pos_list
+    if len(keywords) % keys_len == 0
+      let start = 0
+    endif
+
     let end = (pos[1] - 1) >= 0 ? (pos[1] - 1) : 0
     let space = end > 0 ? ' ' : ''
     let spaces = substitute(line[start:end], '[^\t]', space, 'g')
+
     call add(keywords, spaces)
+
     let start = pos[1] + 1
   endfor
 
-  let s:pkm.pos_list = pos_list
+  "let s:pkm.header = line
+  call s:pkm.Load(keywords)
+
+  let line_plus = len(s:pkm.pages) < 2 ? 1 : 2
   let options = #{
         \ filtermode: 'n',
         \ pos: 'botleft',
-        \ line: 'cursor+1',
+        \ line: 'cursor+' . line_plus,
         \ col: 'cursor-' . (virtcol('.') - 1) ,
         \ }
-  let s:pkm.header = line
-  call s:pkm.Load(keywords).Open(options)
+  call s:pkm.Open(options)
   let s:pkm_id = s:pkm.pkm_id
 endfunc
 
