@@ -157,20 +157,20 @@ API CONTENTS						*pkm-api-contents*
 	  |pkm.pages|
 	  |pkm.keys|
 	  |pkm.max_cols_lines|
+	  |pkm.vertical|
 	  |pkm.item_border|
 	  |pkm.align|
-	  |pkm.vertical|
 	  |pkm.col_width|
 	  |pkm.fix_cols|
 	  |pkm.fix_lines|
-	  |pkm.add_page_guide|
-	  |pkm.key_guide|
-	  |pkm.page_guides|
 	  |pkm.alt|
 	  |pkm.xclose|
+	  |pkm.add_page_guide|
+	  |pkm.ignorecase|
 	  |pkm.next_page_key|
 	  |pkm.prev_page_key|
-	  |pkm.ignorecase|
+	  |pkm.key_guide|
+	  |pkm.page_guides|
 	  |pkm.focus|
 	|pkm-utils|
 	  |pkm#GetPkmDicts()|
@@ -652,7 +652,7 @@ pkm.xclose						*pkm.xclose*
 
 		Default: TRUE
 
-pkm.page_guide						*pkm.page_guide*
+pkm.add_page_guide					*pkm.add_page_guide*
 
 		When TRUE and multiple pages, the page guide will be
 		added into |pkm.pages| in |pkm.Load()|.
