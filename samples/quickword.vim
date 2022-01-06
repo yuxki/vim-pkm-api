@@ -14,17 +14,22 @@ func! s:KeywordPosList(line)
 endfunc
 
 hi QuickWord term=reverse ctermbg=16 guibg=#000000
+hi QuickWordV term=reverse ctermfg=215 guifg=#ffb964 ctermbg=16 guibg=#000000
 let s:pkm_id = ''
 func! s:QuickWord()
   if !pkm#Exists(s:pkm_id)
     let s:pkm = pkm#PopupKeyMenu()
-    let s:pkm.keys = 'abcdefgijkmnopqrstuvwyz'
+    " origin props
+    let s:pkm.keys = 'abcdefgijkmnopqrstuwyz'
     let s:pkm.max_cols_lines = len(s:pkm.keys)
     let s:pkm.key_guide = "%t%k"
     let s:pkm.ignorecase = 1
     let s:pkm.align = 0
     let s:pkm.item_border = ""
     let s:pkm.page_guides = ["%n>", "<%v %n>", "<%v"]
+    " unique props
+    let s:pkm.visual_mode = 0
+    let s:pkm.endofword = 0
 
     func! s:pkm.OnOpen(winid)
       call setwinvar(a:winid, '&wincolor', 'QuickWord')
@@ -33,6 +38,9 @@ func! s:QuickWord()
     func! s:pkm.OnFilter(winid, key) dict
       if a:key == ':'
         return -1
+      elseif a:key ==# 'v'
+        let self.visual_mode = 1
+        call setwinvar(a:winid, '&wincolor', 'QuickWordV')
       endif
 
       if len(a:key) == 1
@@ -45,6 +53,10 @@ func! s:QuickWord()
     endfunc
 
     func! s:pkm.OnKeySelect(winid, index) dict
+      if self.visual_mode
+        exe 'normal! v '
+      endif
+
       let pos = self.endofword == 0 ?
             \ self.pos_list[a:index][1] + 1 : self.pos_list[a:index][2]
       call cursor('.', pos)
@@ -72,8 +84,9 @@ func! s:QuickWord()
     let start = pos[1] + 1
   endfor
 
-  "let s:pkm.header = line
+  let s:pkm.header = line
   call s:pkm.Load(keywords)
+  let s:pkm.visual_mode = 0
 
   let line_plus = len(s:pkm.pages) < 2 ? 1 : 2
   let options = #{
