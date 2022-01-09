@@ -110,6 +110,8 @@ There are 2 samples. The "Quick w" is a intallable plugin, and the "Yank Clip" i
 Postions the cursor at the word in the line quickly.
 
 #### 2. Yank Clip
+![Demo4](assets/yank_clip_img.png?raw=true)
+
 Clips and manages yanked text.
 
 Yank and clip with <C-Y> in visual mode. And Run `YankClipMenu` to open the clip board.
