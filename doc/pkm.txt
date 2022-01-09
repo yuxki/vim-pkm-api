@@ -1,6 +1,6 @@
-*pkm.txt*  For Vim version 8.2   Last change: 2021/12/29
+*pkm.txt*  For Vim version 8.2   Last change: 2022/01/09
 
-Customable Key Oriented Popup Menu.
+Easy and Customable Key Selection Popup Menu.
 
 Version: 0.1.0
 Author: yuxki
