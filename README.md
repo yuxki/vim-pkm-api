@@ -36,24 +36,26 @@ function! SamplePkm()
 endfunction
 ```
 
-#### 1 The constructed pkm dict is managed by pkm.pkm_id key in
-the script variable dict ({ pkm_id : pkm_dict }). ```pkm#Exists()``` checks if
+__#1__ The constructed pkm dict is managed by pkm.pkm_id key in the
+script variable dict ({ pkm_id : pkm_dict }). ```pkm#Exists()``` checks if
 the pkm_id is exists in the script variable dict, and you can reuse the
 pkm dict.
 
-#### 2 The pkm-props changes the pkm popup behavior. In this sample,
+__#2__ The pkm-props changes the pkm popup behavior. In this sample,
 '[key] item' pairs will be displayed with 2 item columns, and '[key]'
 will be the keys 'r', 'b', 'y', 'o'.
 
-#### 3 The pkm-handlers can be used by overriding. The pkm.OnKeySelect() will be
+__#3__ The pkm-handlers can be used by overriding. The pkm.OnKeySelect() will be
 called when the key is selected. In this case, the key 'r' returns 0, and the
 key 'o' returns 3.
 
-#### 4 The colors and the properties are loaded by the pkm.Load(). Now pkm
-popup can be opend.
+__#4__ The colors and the properties are loaded by the pkm.Load(). Now pkm
+popup can be opend_.
 
-#### 5 The pkm.Open() calls popup_create() with the options argument. See
+__#5__ The pkm.Open() calls popup_create() with the options argument. See
 popup_create-arguments for details on the options.
+
+![Demo2](assets/usage_multi_demo.gif?raw=true)
 ```
  let s:colors = ['red', 'blue', 'yellow', 'orange',
       \ 'dark-red', 'dark-blue', 'dark-yellow', 'dark-orange',
@@ -70,10 +72,7 @@ the pkm.page_guides property.
 Plug 'yuxki/vim-pkm-api'
 ```
 #### Combining your plugin:
-Download and put the "autoload/pkm.vim" from
-
- https://github.com/yuxki/vim-pkm-api
-
+Download and put the "autoload/pkm.vim"
 into your plugin directory, and rename interface functions with a commad
 like the following.
 ```
@@ -83,8 +82,21 @@ sed -i -e 's|pkm#|foo#pkm#|g' path/to/your/plugin/autoload/foo/pkm.vim
 ## Docs
 Please see the helps.
 ```
+" open help
 help pkm.txt
+
+" API table of contents
 help pkm-api-contents
+
+" API table of contents
+help pkm-api-contents
+
+" APIs
+help pkm-constructor
+help pkm-methods
+help pkm-handlers
+help pkm-props
+help pkm-utils
 ```
 
 ## Samples
@@ -94,6 +106,7 @@ There are 2 samples. The "Quick w" is a intallable plugin, and the "Yank Clip" i
    (Repo: https://github.com/yuxki/vim-quickw)
 
 ![Demo2]()
+
 Postions the cursor at the word in the line quickly.
 
 #### 2. Yank Clip
