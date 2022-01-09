@@ -135,7 +135,7 @@ like the following.
 4. Interface						*pkm-interface*
 
 ------------------------------------------------------------------------------
-API CONTENTS						*pkm-api-contents*
+API Contents						*pkm-api-contents*
 
 	|pkm-constructor|
 	  |pkm#PopupKeyMenu()|
@@ -180,7 +180,7 @@ API CONTENTS						*pkm-api-contents*
 	  |pkm#Exists()|
 
 ------------------------------------------------------------------------------
-CONSTRUCTOR						*pkm-constructor*
+Constructor						*pkm-constructor*
 
 pkm#PopupKeyMenu()					*pkm#PopupKeyMenu()*
 
@@ -206,7 +206,7 @@ pkm#PopupKeyMenu()					*pkm#PopupKeyMenu()*
 			:endif
 
 ------------------------------------------------------------------------------
-METHODS							*pkm-methods*
+Methods							*pkm-methods*
 
 pkm.Load({items})					*pkm.Load()*
 
@@ -358,7 +358,7 @@ pkm.Remove()						*pkm.Remove()*
 			endfunc
 
 ------------------------------------------------------------------------------
-HANDLERS						*pkm-handlers*
+Handlers						*pkm-handlers*
 
 pkm.OnOpen({winid})					*pkm.OnOpen()*
 
@@ -429,7 +429,7 @@ pkm.OnClose({winid}, {secondarg})				*pkm.OnClose()*
 			endfunc
 
 ------------------------------------------------------------------------------
-PROPS							*pkm-props*
+Props							*pkm-props*
 
 pkm.winid						*pkm.winid*
 
@@ -551,7 +551,7 @@ pkm.align						*pkm.align*
 			[a] This [b] is the pkm.align [c] example
 			<< [H] (2) [L] >>
 
-		Default: TRUE
+ 		Default: TRUE
 
 pkm.item_border						*pkm.item_border*
 
@@ -758,7 +758,7 @@ pkm.focus						*pkm.focus*
 		Default: TRUE
 
 ------------------------------------------------------------------------------
-UTILS							*pkm-utils*
+Utils							*pkm-utils*
 
 pkm#GetPkmDicts()					*pkm#GetPkmDicts()*
 
@@ -780,34 +780,87 @@ pkm#Exists({pkmid})					*pkm#Exists()*
 		variable, if not returns 0.
 
 ==============================================================================
-SAMPLES							*pkm-samples*
+5. Samples							*pkm-samples*
+
+There are 2 samples. The "Quick w" is a intallable plugin, and the
+"Yank Clip" is a code only sample.
+
+1. Quick w (Repo: https://github.com/yuxki/vim-quickw)
+
+   Postions the cursor at the word in the line quickly.
+   Displays the popup that guides the word positions like this.
+   a        b   c     d    e      f   g    i         j    k
+
+2. Yank Clip
+
+   Clips and manages yanked text.
+   Yank and clip with <C-Y> in visual mode. And Run `YankClipMenu` to open
+   the clip board. >
+	:YankClipMenu
+<
+	P:[P]Paste [R]Register [D]Delete [C]Clear [x]
+	[a] text_1
+	[b] text_2
+	[c] func Func() ... endfunc
+
+   The Clip board displays key mapped text that clipped by <C-Y>. When text
+   includes multiple line, it displayed like "first line ... last line".
+
+   The behavior of key selection is changed by the modes.
+	[P]Paste: Paste selected text.
+	[R]Register: Register text to be pastable.
+	[D]Delete: Delete a clip.
+
+   These keys operates the popup.
+	[C]Clear: Clear all clips.
+	[x]: Close the popup.
+
+   A current mode is displayed top left of the popup.
+	current mode -> P:[P]Paste [R]Register [D]Delete [C]Clear [x]
+
+Put the bellow script to ".vim/plugin" directory to try this plugin.
 >
- func! s:KeywordPosList(line)
-   let start = 0
-   let pos_list = []
+ let s:yank_clips = []
+ let s:clip_labels = []
 
-   while 1
-     let pos = matchstrpos(a:line, '\k\+', start)
-     if pos[2] < 0
-       break
+ func! s:YankAndClip()
+   let prev_register = @@
+   normal! gvy
+   if prev_register !=# @@
+     let sp_clip = split(@@, '\n')
+     call insert(s:yank_clips, @@)
+
+     if len(sp_clip) > 1
+       call insert(s:clip_labels, sp_clip[0] . ' ... ' . sp_clip[-1])
+     else
+       call insert(s:clip_labels, @@)
      endif
-     call add(pos_list, pos)
-     let start = pos[2]
-   endwhile
-   return pos_list
+   endif
  endfunc
+ xmap <silent> <C-Y> :call <SID>YankAndClip()<CR>
 
- hi QuickWord term=reverse ctermbg=16 guibg=#000000
+ let s:option_labes = ':[P]Paste [R]Register [D]Delete [C]Clear [x]'
+ let s:clear_key = 'C'
+ let s:paste_key = 'P'
+ let s:register_key = 'R'
+ let s:del_key = 'D'
+ hi YankClipMenu term=reverse ctermbg=16 guibg=#000000
+
  let s:pkm_id = ''
- func! s:QuickWord()
-   if !pkm#Exists(s:pkm_id)
-     let s:pkm = pkm#PopupKeyMenu()
-     let s:pkm.max_cols_lines = len(s:pkm.keys)
-     let s:pkm.key_guide = "[%k]"
-     let s:pkm.ignorecase = 1
 
+ func! YankClipMenu()
+   " check instance is exists
+   if !pkm#Exists(s:pkm_id)
+     " construct
+     let s:pkm = pkm#PopupKeyMenu()
+     " set option
+     let s:pkm.alt = 'No clips'
+     " extend option
+     let s:pkm.mode = s:paste_key
+
+     " override handers
      func! s:pkm.OnOpen(winid)
-       call setwinvar(a:winid, '&wincolor', 'QuickWord')
+       call setwinvar(a:winid, '&wincolor', 'YankClipMenu')
      endfunc
 
      func! s:pkm.OnFilter(winid, key) dict
@@ -815,41 +868,59 @@ SAMPLES							*pkm-samples*
          return -1
        endif
 
-       if len(a:key) == 1
-         if a:key =~# '\u'
-           let self.endofword = 1
-         else
-           let self.endofword = 0
-         endif
+       " mode changes
+       if a:key ==# s:clear_key
+        let s:yank_clips = []
+         let s:clip_labels = []
+         call s:pkm.Load(s:clip_labels)
+         call s:pkm.Refresh()
+         return 1
+       elseif a:key ==# s:del_key
+         let self.mode = s:del_key
+         call popup_setoptions(a:winid, #{title:s:del_key . s:option_labes})
+         return 1
+       elseif a:key ==# s:paste_key
+         let self.mode = s:paste_key
+         call popup_setoptions(a:winid, #{title:s:paste_key . s:option_labes})
+         return 1
+       elseif a:key ==# s:register_key
+         let self.mode = s:register_key
+         call popup_setoptions(a:winid, #{title:s:register_key . s:option_labes})
+         return 1
        endif
      endfunc
 
+     " actions by current modes
      func! s:pkm.OnKeySelect(winid, index) dict
-       let pos = self.endofword == 0 ?
-             \ self.pos_list[a:index][1] + 1 : self.pos_list[a:index][2]
-       call cursor('.', pos)
-       call popup_close(a:winid)
+       if self.mode == s:del_key
+         call remove(s:yank_clips, a:index)
+         call remove(s:clip_labels, a:index)
+         call s:pkm.Load(s:clip_labels)
+         call s:pkm.Refresh()
+       elseif self.mode == s:paste_key
+         let save_prev_reg = @@
+         let @@ = s:yank_clips[a:index]
+         normal! p
+         let @@ = save_prev_reg
+         call popup_close(a:winid)
+       elseif self.mode == s:register_key
+         let @@ = s:yank_clips[a:index]
+         call popup_close(a:winid)
+       endif
      endfunc
    endif
 
-   let pos_list = s:KeywordPosList(getline('.'))
-   let keywords = []
-   for pos in pos_list
-     call add(keywords, pos[0])
-   endfor
-   let s:pkm.pos_list = pos_list
-
    let options = #{
          \ filtermode: 'n',
-         \ pos: 'botleft',
+         \ title: s:paste_key . s:option_labes,
          \ line: 'cursor+1',
-         \ col: 'cursor-'.getpos('.')[2],
+         \ col: 'cursor-1',
+         \ padding: [1, 1, 0, 1],
          \ }
-   call s:pkm.Load(keywords).Open(options)
+   call s:pkm.Load(s:clip_labels).Open(options)
    let s:pkm_id = s:pkm.pkm_id
  endfunc
-
- nmap <silent> W :call <SID>QuickWord()<CR>
+ command! YankClipMenu :call YankClipMenu()
 <
 ==============================================================================
  vim:tw=78:ts=8:noet:ft=help:norl:
