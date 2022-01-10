@@ -99,7 +99,7 @@ There are 2 samples. "Quick w" is the intallable plugin, and "Yank Clip" is the 
 #### 1. Quick w
    (Repo: https://github.com/yuxki/vim-quickw)
 
-![Demo3](https://raw.githubusercontent.com/yuxki/vim-quickw/main/assets/intro_demo.gif?raw=true)
+![Demo3](https://raw.githubusercontent.com/yuxki/vim-quickw/main/assets/intro_demo.gif)
 
 Postions the cursor at the word in the line quickly.
 
