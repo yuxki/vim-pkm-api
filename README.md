@@ -1,12 +1,13 @@
 # vim-pkm-api
 
 ## Introduction
-pkm (Popup Key Menu) is the easy and customable key selection popup menu. 
+pkm is the easy and customable key selection popup menu.
 
 ## Usage
 ![Demo1](assets/usage_demo.gif?raw=true)
 
-This sample program opens the popup menu that prints a color name. 
+This sample program opens the popup menu that prints a color name.
+(The key 'x' closes the popup.)
 
 ```
 let s:colors = ['red', 'blue', 'yellow', 'orange']
@@ -21,6 +22,7 @@ function! SamplePkm()
   if !pkm#Exists(s:pkm_id)
     let s:pkm = pkm#PopupKeyMenu()            " #1
     let s:pkm.max_cols_lines = 2              " #2
+    let s:pkm.keys = 'rbyo'
     let s:pkm.keys = 'rbyo'
 
     function! s:pkm.OnKeySelect(winid, index) " #3
@@ -37,21 +39,21 @@ endfunction
 
 __#1__ The constructed pkm dict is managed by `pkm.pkm_id` in the
 script variable dict ({ pkm_id : pkm_dict }). `pkm#Exists()` checks if
-the `pkm_id` is exists in the script variable dict, and you can reuse the
+the pkm_id is exists in the script variable dict, and you can reuse the
 pkm dict.
 
-__#2__ The pkm props changes the pkm popup behavior. In this sample,
+__#2__ pkm-props changes behaviors of the pkm popup. In this sample,
 '[key] item' pairs will be displayed in 2 columns, and '[key]'
 will be 'r', 'b', 'y', 'o'.
 
-__#3__ The pkm handlers can be used by overriding. `pkm.OnKeySelect()` will be
+__#3__ pkm-handlers can be used by overriding. `pkm.OnKeySelect()` will be
 called when the key is selected. In this case, the key 'r' returns 0, and the
 key 'o' returns 3.
 
 __#4__ The color names and the properties are loaded by `pkm.Load()`. Now the pkm
 popup can be opened.
 
-__#5__ `pkm.Open()` calls `popup_create()` and pass the options to that function. 
+__#5__ `pkm.Open()` calls `popup_create()` and pass the options to that function.
 
 ![Demo2](assets/usage_multi_demo.gif?raw=true)
 ```
@@ -59,8 +61,8 @@ __#5__ `pkm.Open()` calls `popup_create()` and pass the options to that function
       \ 'dark-red', 'dark-blue', 'dark-yellow', 'dark-orange',
       \ 'light-red', 'light-blue', 'light-yellow', 'light-orange']
 ```
-When you load a list that has items over the `pkm.key` length, items will be separated by pages. 
-On the default behavior, the 'l' key transits to next page,and the 'h' key transits to previous page. 
+When you load a list that has items over `pkm.key` length, the items will be separated by pages.
+On the default behavior, the 'l' key transits to the next page, and the 'h' key transits to the previous page.
 
 ## Installation
 #### With vim-plug:
@@ -92,12 +94,12 @@ help pkm-utils
 ```
 
 ## Samples
-There are 2 samples. "Quick w" is intallable, and the "Yank Clip" is the code only sample.
+There are 2 samples. "Quick w" is the intallable plugin, and "Yank Clip" is the code only sample.
 
 #### 1. Quick w
    (Repo: https://github.com/yuxki/vim-quickw)
 
-![Demo2]()
+![Demo3](https://raw.githubusercontent.com/yuxki/vim-quickw/main/assets/intro_demo.gif?raw=true)
 
 Postions the cursor at the word in the line quickly.
 
@@ -110,8 +112,8 @@ Yank and clip with \<C-Y> in visual mode. And Run `YankClipMenu` to open the cli
 ```
 :YankClipMenu
 ```
-The Clip board displays key that mapped clipped text. When text
-includes multiple line, it displayed like "first line ... last line".
+The Clip board displays the key that mapped text that clpped. When the text
+includes multiple lines, they are displayed like "first line ... last line".
 
 The behavior of key selection is changed by the modes.
 |Mode|Key|Key Selectiton Behavior|

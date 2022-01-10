@@ -1,6 +1,6 @@
 *pkm.txt*  For Vim version 8.2   Last change: 2022/01/09
 
-Easy and Customable Key Selection Popup Menu.
+Easy and Customable Key Selection Popup Menu API.
 
 Version: 0.1.0
 Author: yuxki
@@ -25,8 +25,7 @@ CONTENTS 						*pkm-contents*
 ==============================================================================
 1. Introduction						*pkm-intro*
 
-The pkm (Popup Key Menu) is customable and the alphabet and number keys
-oriented popup menu. See |popup.txt| for details on popup.
+pkm is the easy and customable key selection popup menu.
 
 ==============================================================================
 2. Usage						*pkm-usage*
@@ -36,9 +35,8 @@ oriented popup menu. See |popup.txt| for details on popup.
  | [y] yellow [o] orange  |
  +------------------------+
 
-This sample program open the above popup menu that prints color name
-according to the the key. The key 'x' closes the popup. Set 0 to the
-|pkm.xclose| to disable this util.
+This sample program opens the above popup menu that prints a color name.
+(The key 'x' closes the popup.)
 
 Note: See |pkm-samples| to get more "plugin like" samples.
 >
@@ -72,28 +70,28 @@ the script variable dict ({ pkm_id : pkm_dict }). |pkm#Exists()| checks if
 the pkm_id is exists in the script variable dict, and you can reuse the
 pkm dict.
 
-#2 The |pkm-props| changes the pkm popup behavior. In this sample,
-'[key] item' pairs will be displayed with 2 item columns, and '[key]'
-will be the keys 'r', 'b', 'y', 'o'.
+#2 |pkm-props| changes behaviors of the pkm popup . In this sample,
+'[key] item' pairs will be displayed in 2 item columns, and '[key]'
+will be 'r', 'b', 'y', 'o'.
 
-#3 The |pkm-handlers| can be used by overriding. The |pkm.OnKeySelect()| will be
-called when the key is selected. In this case, the key 'r' returns 0, and the
-key 'o' returns 3.
+#3 |pkm-handlers| can be used by overriding. |pkm.OnKeySelect()| will be
+called when the key is selected. In this case, the 'r' key returns 0, and
+the 'o' key returns 3.
 
-#4 The colors and the properties are loaded by the |pkm.Load()|. Now pkm
-popup can be opend.
+#4 The color names and the properties are loaded by the |pkm.Load()|. Now
+the pkm popup can be opened.
 
-#5 The |pkm.Open()| calls |popup_create()| with the options argument. See
+#5 |pkm.Open()| calls |popup_create()| with the options argument. See
 |popup_create-arguments| for details on the options.
 >
  let s:colors = ['red', 'blue', 'yellow', 'orange',
       \ 'dark-red', 'dark-blue', 'dark-yellow', 'dark-orange',
       \ 'light-red', 'light-blue', 'light-yellow', 'light-orange']
 <
-If you load a List has items more than |pkm.key| length, items separated by
-pages. On the default behavior, the key 'l' transits to next page, and the
-key 'h' does the opposite of that. The page guide can be customized by
-the |pkm.page_guides| property.
+When you load a list that has items over |pkm.key| length, the items will be
+separated by pages. On the default behavior, the key 'l' transits to the
+next page, and the 'h' key transits to the previous page. The page guide
+can be customized by |pkm.page_guides| property.
 
  +------------------------------------+
  | [r] red          [b] blue          |
@@ -210,9 +208,9 @@ Methods							*pkm-methods*
 
 pkm.Load({items})					*pkm.Load()*
 
-		Load the {items} and some |pkm-props|. {items} is a
-		string list, and a item is displayed with the mapped
-		key. As a result, the |pkm.pages| is created. >
+		Load {items} and some |pkm-props|. {items} is a
+		string list, and each items displayed with the mapped
+		keys. As a result, |pkm.pages| is created. >
 			:let id = pkm#PopupKeyMenu()
 			:let pkm.max_cols_lines = 2
 			:let pkm.keys ='abcd'
@@ -244,9 +242,8 @@ pkm.Load({items})					*pkm.Load()*
 pkm.Open({options})					*pkm.Open()*
 
 		Create and open a pkm popup. {options} argument is
-		|popup_create()| options. The 'filter', the 'callback'
-		and the 'mapping' options are reserved by this
-		method. >
+		|popup_create()| options. 'filter', 'callback' and 'mapping'
+		options are reserved by this method. >
 			call pkm.Open(#{
  				\ padding: [0, 1, 0, 1],
  				\ border: [1, 1, 1, 1],
@@ -259,9 +256,9 @@ pkm.Open({options})					*pkm.Open()*
 				| [d] DDD  |
 				+----------+
 
-		Calls |pkm.OnOpen()| handler after a popup opened. If the
-		|pkm.pages| is empty or the |pkm.winid| is exists in existing
-		popup |window-ID|, does not anything, and returns.
+		Calls |pkm.OnOpen()| handler after the popup is opened. If
+		|pkm.pages| is empty or |pkm.winid| is exists in existing
+		popup, it does not anything and returns.
 
 		Returns the self dict. And this dict is set window-ID by this
 		method. >
@@ -273,13 +270,13 @@ pkm.Refresh()						*pkm.Refresh()*
 
 		Refresh texts of the pkm popupu window.
 		It changes behavior depends on the state:
-		  1. When the |pkm.pages| is not empty.
+		  1. When |pkm.pages| is not empty.
 		     - Refresh by pkm.pages.
 
-		  2. When the pkm.pages is empty, and the |pkm.alt| is not empty.
-		     - Refresh by the pkm.alt.
+		  2. When pkm.pages is empty, and |pkm.alt| is not empty.
+		     - Refresh by pkm.alt.
 
-		  3. When the pkm.pages is empty, and the pkm.alt is empty.
+		  3. When pkm.pages is empty, and pkm.alt is empty.
 		     - Close the pkm popup.
 
 		It can be used for popups that change items dynamically, like
@@ -300,11 +297,11 @@ pkm.Filter({winid}, {key})				*pkm.Filter()*
 		The popup key menu's |popup-filter|.
 		This method does the follwing actions in the order.
 
-		1. Calls the |pkm.OnFilter()| handler.
+		1. Calls |pkm.OnFilter()| handler.
 		2. Closes the popup if the xclose is 1 and the key is 'x'
 		3. Turns the page if the key is matched |pkm.next_page_key| or
 		   |pkm.prev_page_key|.
-		4. Calls the |pkm.OnKeySelect()| handler.if the key is matched
+		4. Calls |pkm.OnKeySelect()| handler.if the key is matched
 		   |pkm.keys|.
 
 		Note: See |popup-filter| help for details on the popup-filter
@@ -332,7 +329,7 @@ pkm.Filter({winid}, {key})				*pkm.Filter()*
 		'x'(when the |pkm.xclose| is 1). >
 			:let pkm.focus = 0
 <
-		In an other way, return -1 in the |pkm.OnFilter()| handler
+		In an other way, return -1 in |pkm.OnFilter()| handler
 		and specify |filtermode| options for |popup_create()|.
 		It lets the filter return FALSE immediately. The following
 		example enables Vim to consume ":" and to enter Command-line
@@ -362,7 +359,7 @@ Handlers						*pkm-handlers*
 
 pkm.OnOpen({winid})					*pkm.OnOpen()*
 
-		Called after opening the pkm popup in the |pkm.Open()|.
+		Called after opening the pkm popup in |pkm.Open()|.
 		Example: >
 			func! pkm.OnOpen(winid)
 			  hi MyPkmColor ctermbg=darkgreen guibg=darkgreen
@@ -371,8 +368,8 @@ pkm.OnOpen({winid})					*pkm.OnOpen()*
 
 pkm.OnFilter()						*pkm.OnFilter()*
 
-		Called immediately after the |pkm.Filter()| invoked.
-		Return value affects the |pkm.Filter()| behavior:
+		Called immediately after |pkm.Filter()| invoked.
+		Return value affects |pkm.Filter()| behavior:
 
 			 0 : Does not return immediately from the filter.
 			     The return value is depend on |pkm.focus|.
@@ -398,10 +395,11 @@ pkm.OnFilter()						*pkm.OnFilter()*
 
 pkm.OnKeySelect({winid}, {index})			*pkm.OnKeySelect()*
 
-		Called if the key is in the |pkm.keys| in |pkm.Filter()|. Returns
-		from |pkm.Filter()| TRUE and the key is consumed by the filter.
+		Called if the key is exists in |pkm.keys|, in |pkm.Filter()|.
+		Returns from |pkm.Filter()| TRUE and the key is consumed by
+		the filter.
 
-		{index} is passed besed on length of items loaded by the
+		{index} is passed besed on length of items loaded by
 		|pkm.Load()|:
 			+-------------------+  +-------------------+
 			| [a] AAA [b] BBB   |  | [a] CCC [b] DDD   |
@@ -469,7 +467,7 @@ pkm.pages						*pkm.pages*
 pkm.keys						*pkm.keys*
 
 		Serial lowercase and uppercase letters, and numbers string
-		that will be mapped to the items and matched the key in the
+		that will be mapped to the items and matched the key in
 		|pkm.Filter()|.
 
 		When value is "aB34" and items is ["AAA", "BBB", "CCC",
@@ -496,7 +494,7 @@ pkm.keys						*pkm.keys*
 pkm.max_cols_lines					*pkm.max_cols_lines*
 
 		Maximum number of a the the colmuns or the lines in the page.
-		When the |pkm.vertical| is 0, this prop controls the number of
+		When |pkm.vertical| is 0, this prop controls the number of
 		colmuns. When pkm.vertical is 1, this prop controls the number
 		of lines.
 			- pkm.max_cols_lines is 3, pkm.vertical is FALSE:
@@ -531,14 +529,14 @@ pkm.align						*pkm.align*
 		   - pkm.fix_cols (default FALSE)
 		   - pkm.fix_lines (default FALSE)
 
-		   Only the pkm.col_width will be always on, it can be
+		   Only pkm.col_width will be always on, it can be
 		   chosen how to adjust the colmun width.
 		   Examples:
-			- When the pkm.col_width is "auto":
+			- When pkm.col_width is "auto":
 			  page 1: [a] This [b] is the pkm.align [c] example
 			  page 0: [a] c1   [b] c2               [c] c3
 
-			- When the pkm.align is FALSE:
+			- When pkm.align is FALSE:
 			  page 1: [a] This [b] is the pkm.align [c] example
 			  page 0: [a] c1 [b] c2 [c] c3
 
@@ -630,9 +628,9 @@ pkm.page_guides						*pkm.page_guides*
 		 - Index 1: For the middle pages
 		 - Index 2: For the last page
 
-		"%p" is replaced by the [p]age number.
-		"%n" is replaced by the pkm.[n]ext_page_key.
-		"%v" is replaced by the pkm.pre[v]_page_key.
+		"%p" is replaced by the page number.
+		"%n" is replaced by pkm.next_page_key.
+		"%v" is replaced by pkm.prev_page_key.
 
 		Default: [
 		\ "       (%p) [%n] >>",
@@ -698,8 +696,8 @@ pkm.fix_lines						*pkm.fix_lines*
 
 pkm.alt							*pkm.alt*
 
-		Alternate texts for the |pkm.pages|. Passed as the {what}
-		of the |popup_create()| arguments, if the pkm.pages is empty
+		Alternate texts for |pkm.pages|. Passed as the {what}
+		of |popup_create()| arguments, if pkm.pages is empty
 		and length of this prop is over 1.
 
 		Default: ""
@@ -707,14 +705,14 @@ pkm.alt							*pkm.alt*
 pkm.xclose						*pkm.xclose*
 
 		TRUE to map the key 'x' to the key that closes the pkm
-		popup. After the popup is closed, the |pkm.Filter()|
-		return with TRUE.
+		popup. After the popup is closed, |pkm.Filter()| returns
+		with TRUE.
 
 		Default: TRUE
 
 pkm.ignorecase						*pkm.ignorecase*
 
-		TRUE to ignore case of the |pkm.keys|.
+		TRUE to ignore case of |pkm.keys|.
 		Examples:
 			- When TRUE
 			  item : [a] A [b] B [c] C
@@ -731,7 +729,7 @@ pkm.ignorecase						*pkm.ignorecase*
 pkm.next_page_key					*pkm.next_page_key*
 
 		A letter that will be mapped to the key that moves to the
-		next page. After the next page is displayed, the |pkm.Filter()|
+		next page. After the next page is displayed, |pkm.Filter()|
 		returns with TRUE.
 
 		Default: "L"
@@ -739,7 +737,7 @@ pkm.next_page_key					*pkm.next_page_key*
 pkm.prev_page_key					*pkm.prev_page_key*
 
 		A letter that will be mapped to the key that moves to the
-		previous page. After the previous page is displayed, the
+		previous page. After the previous page is displayed,
 		|pkm.Filter()| returns with TRUE.
 
 		Default: "H"
@@ -748,7 +746,7 @@ pkm.focus						*pkm.focus*
 
 		When FALSE, |pkm.Filter()| will return FALSE when the key is
 		not matched the props, |pkm.next_page_key|, |pkm.next_page_key|,
-		|pkm.keys|, 'x'(when the |pkm.xclose| is 1).
+		|pkm.keys|, 'x'(when |pkm.xclose| is 1).
 		When TRUE, the method will return TRUE, even if the key is not
 		matched the props.
 
@@ -782,8 +780,8 @@ pkm#Exists({pkmid})					*pkm#Exists()*
 ==============================================================================
 5. Samples							*pkm-samples*
 
-There are 2 samples. The "Quick w" is a intallable plugin, and the
-"Yank Clip" is a code only sample.
+There are 2 samples. "Quick w" is the intallable plugin, and the "Yank Clip"
+is the code only sample.
 
 1. Quick w (Repo: https://github.com/yuxki/vim-quickw)
 
@@ -803,8 +801,9 @@ There are 2 samples. The "Quick w" is a intallable plugin, and the
 	[b] text_2
 	[c] func Func() ... endfunc
 
-   The Clip board displays key mapped text that clipped by <C-Y>. When text
-   includes multiple line, it displayed like "first line ... last line".
+   The Clip board displays the key that mapped text that is clipped by <C-Y>.
+   When the text includes multiple lines, they are displayed like
+   "first line ... last line".
 
    The behavior of key selection is changed by the modes.
 	[P]Paste: Paste selected text.
@@ -818,7 +817,7 @@ There are 2 samples. The "Quick w" is a intallable plugin, and the
    A current mode is displayed top left of the popup.
 	current mode -> P:[P]Paste [R]Register [D]Delete [C]Clear [x]
 
-Put the bellow script to ".vim/plugin" directory to try this plugin.
+Put the bellow script to ".vim/plugin" directory, and try this plugin.
 >
  let s:yank_clips = []
  let s:clip_labels = []
