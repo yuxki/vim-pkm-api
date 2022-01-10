@@ -1,4 +1,10 @@
 # vim-pkm-api
+## Contents
+ - [Introduction](#introduction)
+ - [Usage](#usage)
+ - [Installation](#installation)
+ - [Docs](#docs)
+ - [Samples](#samples)
 
 ## Introduction
 pkm is the easy and customable key selection popup menu.
