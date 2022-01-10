@@ -6,7 +6,7 @@ pkm (Popup Key Menu) is the easy and customable key selection popup menu.
 ## Usage
 ![Demo1](assets/usage_demo.gif?raw=true)
 
-This sample program opens the popup menu that prints color name. 
+This sample program opens the popup menu that prints a color name. 
 
 ```
 let s:colors = ['red', 'blue', 'yellow', 'orange']
