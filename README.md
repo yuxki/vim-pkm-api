@@ -1,14 +1,13 @@
 # vim-pkm-api
 
 ## Introduction
-The pkm (Popup Key Menu) is customable and the alphabet and number keys oriented popup menu.
+pkm (Popup Key Menu) is the easy and customable key selection popup menu. 
 
 ## Usage
 ![Demo1](assets/usage_demo.gif?raw=true)
 
-This sample program open the above popup menu that prints color name
-according to the the key. The key 'x' closes the popup. Set 0 to the
-pkm.xclose to disable this util.
+This sample program opens the popup menu that prints color name. 
+
 ```
 let s:colors = ['red', 'blue', 'yellow', 'orange']
 let s:options = #{
@@ -36,24 +35,23 @@ function! SamplePkm()
 endfunction
 ```
 
-__#1__ The constructed pkm dict is managed by pkm.pkm_id key in the
-script variable dict ({ pkm_id : pkm_dict }). ```pkm#Exists()``` checks if
-the pkm_id is exists in the script variable dict, and you can reuse the
+__#1__ The constructed pkm dict is managed by `pkm.pkm_id` in the
+script variable dict ({ pkm_id : pkm_dict }). `pkm#Exists()` checks if
+the `pkm_id` is exists in the script variable dict, and you can reuse the
 pkm dict.
 
-__#2__ The pkm-props changes the pkm popup behavior. In this sample,
-'[key] item' pairs will be displayed with 2 item columns, and '[key]'
-will be the keys 'r', 'b', 'y', 'o'.
+__#2__ The pkm props changes the pkm popup behavior. In this sample,
+'[key] item' pairs will be displayed in 2 columns, and '[key]'
+will be 'r', 'b', 'y', 'o'.
 
-__#3__ The pkm-handlers can be used by overriding. The pkm.OnKeySelect() will be
+__#3__ The pkm handlers can be used by overriding. `pkm.OnKeySelect()` will be
 called when the key is selected. In this case, the key 'r' returns 0, and the
 key 'o' returns 3.
 
-__#4__ The colors and the properties are loaded by the pkm.Load(). Now pkm
-popup can be opend_.
+__#4__ The color names and the properties are loaded by `pkm.Load()`. Now the pkm
+popup can be opened.
 
-__#5__ The pkm.Open() calls popup_create() with the options argument. See
-popup_create-arguments for details on the options.
+__#5__ `pkm.Open()` calls `popup_create()` and pass the options to that function. 
 
 ![Demo2](assets/usage_multi_demo.gif?raw=true)
 ```
@@ -61,10 +59,8 @@ popup_create-arguments for details on the options.
       \ 'dark-red', 'dark-blue', 'dark-yellow', 'dark-orange',
       \ 'light-red', 'light-blue', 'light-yellow', 'light-orange']
 ```
-If you load a List has items more than pkm.key length, items separated by
-pages. On the default behavior, the key 'l' transits to next page, and the
-key 'h' does the opposite of that. The page guide can be customized by
-the pkm.page_guides property.
+When you load a list that has items over the `pkm.key` length, items will be separated by pages. 
+On the default behavior, the 'l' key transits to next page,and the 'h' key transits to previous page. 
 
 ## Installation
 #### With vim-plug:
@@ -73,8 +69,7 @@ Plug 'yuxki/vim-pkm-api'
 ```
 #### Combining your plugin:
 Download and put the "autoload/pkm.vim"
-into your plugin directory, and rename interface functions with a commad
-like the following.
+into your plugin directory, and rename interface functions with some commad like the following.
 ```
 sed -i -e 's|pkm#|foo#pkm#|g' path/to/your/plugin/autoload/foo/pkm.vim
 ```
@@ -85,10 +80,7 @@ Please see the helps.
 " open help
 help pkm.txt
 
-" API table of contents
-help pkm-api-contents
-
-" API table of contents
+" table of contents
 help pkm-api-contents
 
 " APIs
@@ -100,7 +92,7 @@ help pkm-utils
 ```
 
 ## Samples
-There are 2 samples. The "Quick w" is a intallable plugin, and the "Yank Clip" is a code only sample.
+There are 2 samples. "Quick w" is intallable, and the "Yank Clip" is the code only sample.
 
 #### 1. Quick w
    (Repo: https://github.com/yuxki/vim-quickw)
@@ -109,16 +101,16 @@ There are 2 samples. The "Quick w" is a intallable plugin, and the "Yank Clip" i
 
 Postions the cursor at the word in the line quickly.
 
-#### 2. Yank Clip
+#### 2. Yank Clip Menu
 ![Demo4](assets/yank_clip_img.png?raw=true)
 
 Clips and manages yanked text.
 
-Yank and clip with <C-Y> in visual mode. And Run `YankClipMenu` to open the clip board.
+Yank and clip with \<C-Y> in visual mode. And Run `YankClipMenu` to open the clip board.
 ```
 :YankClipMenu
 ```
-The Clip board displays key mapped text that clipped by <C-Y>. When text
+The Clip board displays key that mapped clipped text. When text
 includes multiple line, it displayed like "first line ... last line".
 
 The behavior of key selection is changed by the modes.
@@ -134,9 +126,11 @@ These keys operates the popup.
 |C|Clear all clips.|
 |x|Close the popup.|
 
-A current mode is displayed top left of the popup.
-
-Put the bellow script to ".vim/plugin" directory to try this plugin.
+A current mode is displayed at top left of the popup.
+```
+-> P:[P]Paste [R]Register [D]Delete [C]Clear [x]
+```
+Put the bellow script to ".vim/plugin" directory, and try this plugin.
 ```
 let s:yank_clips = []
 let s:clip_labels = []
